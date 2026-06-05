@@ -44,6 +44,20 @@ Three sentences per session. Feeds GTM authenticity story.
 - Blocked on: growTime multiplier decision (needs Arsalan), paddy/nachni mandi research (Phase 1 prep), Git LFS not yet configured on repo.
 - Next: night 2 — farming-engine-audit.md + karjat-region-bible.md; night 3 — GDD.md + architecture.md; night 4 — crops.json completeness + README.md.
 
+## 2026-06-05 — PM role + GTM intel brief
+
+- Cursor took senior dev/PM hat; Arsalan onboarded as product trainee under PM for GroundWork.
+- Queried Supabase twitter intel (1k+ bookmarks); wrote GTM brief reusing Chronicler/HyperFrames/tntMan stack.
+- SDLC locked: PM reviews docs + opens PR from moraen-Home; Claude SA audits (devil's advocate) and merges.
+
+## 2026-06-05 — PM doc review (night 1)
+
+- Fixed time-system.md: game-year = 1800 real-min (not 90); prototype growTime = real minutes vs crops.json schism.
+- Fixed repo-structure VPS reference; added qa/pm-doc-review.md with SA devil's-adocate questions.
+- Opening PR #1 from moraen-Home for Claude SA audit.
+
+---
+
 <!-- Template for future sessions:
 
 ## YYYY-MM-DD — Session title

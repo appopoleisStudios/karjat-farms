@@ -2,10 +2,11 @@
 
 **Project:** Karjat Farms / GroundWork  
 **Phase:** 0 — Foundation docs (Week 1)  
-**Owner:** Moraen  
+**PM / senior dev:** Cursor · **Trainee:** Arsalan  
 **Handoff:** [HANDOFF-MORAEN.md](HANDOFF-MORAEN.md)  
 **Workflow:** [tech/dev-workflow.md](tech/dev-workflow.md) — Mac Mini primary, GitHub SDLC, Unity MCP  
 **Overnight labor:** [ops/moraen-cto-tasks.md](ops/moraen-cto-tasks.md) — Moraen CTO Telegram bot (free)  
+**GTM research:** [ops/gtm-twitter-intel-research.md](ops/gtm-twitter-intel-research.md) — Twitter intel → build + market automation  
 **Queue:** [coordination.md](coordination.md)
 
 ## Phase 0 P0 docs (Week 1 — blocking Unity start)
@@ -15,9 +16,9 @@
 | [ ] pending | Documentation index | [docs/README.md](README.md) | Moraen |
 | [ ] pending | Game Design Document | [docs/gdd/GDD.md](gdd/GDD.md) | Moraen |
 | [ ] pending | Architecture overview | [docs/tech/architecture.md](tech/architecture.md) | Moraen |
-| [ ] pending | Repository structure | [docs/tech/repo-structure.md](tech/repo-structure.md) | Moraen |
+| [x] done | Repository structure | [docs/tech/repo-structure.md](tech/repo-structure.md) | Moraen · PM reviewed |
 | [ ] pending | Farming Engine audit | [docs/tech/farming-engine-audit.md](tech/farming-engine-audit.md) | Moraen |
-| [ ] pending | Time system spec | [docs/gdd/time-system.md](gdd/time-system.md) | Moraen |
+| [x] done | Time system spec | [docs/gdd/time-system.md](gdd/time-system.md) | Moraen · PM reviewed (math + growTime fixes) |
 | [ ] pending | Karjat region bible | [docs/geo/karjat-region-bible.md](geo/karjat-region-bible.md) | Moraen |
 | [ ] pending | Crop data (JSON + MD) | [docs/karjat-economy/crops.json](karjat-economy/crops.json) · [crops.md](karjat-economy/crops.md) | Moraen |
 

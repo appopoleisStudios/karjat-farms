@@ -11,18 +11,16 @@
 
 | Parameter | Value | Derivation |
 |---|---|---|
-| Real minutes per game-day | **20** | Locked by spec |
-| Real minutes per game-year | **90** | Locked by spec |
-| Game-minutes per real minute | **3** | 1440 real-min/day ÷ 20 real-min/game-day = 72 game-min/real-min ÷ 24 |
-| Game-minutes per game-day | **4,320** | 1440 × 3 |
-| Game-minutes per game-year | **388,800** | 4320 × 90 |
-| Game-hours per game-day | **72** | 4320 ÷ 60 |
-| 1 game-minute in real seconds | **≈0.833 s** | 20 real-min × 60 s ÷ 4320 game-min |
+| Real minutes per **game-day** | **20** | Locked by spec (HANDOFF row 6) |
+| **Game-days** per game-year | **90** | Locked by spec — **not** 90 real minutes |
+| Real minutes per **game-year** | **1,800** | 90 game-days × 20 real-min/game-day |
+| Game-minutes per game-day (calendar) | **1,440** | Standard 24h clock compressed into one game-day |
+| Game-minutes per real minute (during active day) | **72** | 1440 ÷ 20 |
+| Game-minutes per game-year | **129,600** | 1440 × 90 |
 | Display timezone | **IST (UTC+5:30)** | Sky/UI clock, not geo-blocking |
 
-> Math check: 90 real-days × 1440 real-min/day = 129,600 real-min ÷ 3 game-min/real-min = **43,200 game-min/year**
-> Wait — recheck: 1 game-day = 20 real-min, so 1 real-min = 4320/1440 game-min = **3 game-min per real-min**
-> 90 real-days × (1440 real-min/day ÷ 20 real-min/game-day) = **6,480 game-days per game-year** ✓
+> **PM review fix (2026-06-05):** Earlier draft said “90 real minutes per game-year” — wrong.  
+> **90 = game-days**, each game-day = 20 real minutes of player time → **~30 hours real time** per in-game year.
 
 ## 2. Day/Night Cycle
 
@@ -56,20 +54,35 @@ Planting a Rabi crop during Kharif → system prevents planting (greyed-out in U
 - Rabi sowing: post-monsoon rabi cereals (Jun–Sep are too wet for wheat/methi)
 - Zaid: short summer window, limited crop selection
 
-## 4. Crop Grow Times (game-minute → real-minute conversion)
+## 4. Crop Grow Times — **prototype vs target spec**
 
-Formula: `real-min = growTime-game-min × (20 real-min/game-day ÷ 4320 game-min/day)`
+### Prototype truth (`index.html`)
 
-| Crop | growTime (game-min) | = real minutes | = real seconds |
+```javascript
+const elapsed = (Date.now() - plot.plantedAt) / 60000; // REAL minutes
+if (elapsed >= growTime) { /* harvest ready */ }
+```
+
+| Crop | `growTime` in CROPS | Meaning in prototype | UI label |
 |---|---|---|---|
-| methi | 20 | ~0.09 min | ~5.5 s |
-| lalsaag | 25 | ~0.12 min | ~6.9 s |
-| mula | 30 | ~0.14 min | ~8.3 s |
-| palak | 22 | ~0.10 min | ~6.1 s |
+| methi | 20 | **20 real minutes** | seed card “20m” |
+| lalsaag | 25 | 25 real minutes | “25m” |
+| mula | 30 | 30 real minutes | “30m” |
+| palak | 22 | 22 real minutes | “22m” |
 
-> Prototype has 1:1 growTime:game-minutes (e.g. growTime:20 means 20 game-minutes).  
-> At the 20-min/day scale, crops complete in **under 1 real minute** — intentionally fast for prototype pacing.  
-> **Phase 1 decision required:** Scale grow times up for realism (×10 or ×30 multiplier) or keep fast-paced for retention?
+`crops.json` field `timeUnit: "game-minutes"` is **aspirational** — not what the HTML prototype implements today.
+
+### Unity / MVP target (TBD — needs product decision)
+
+When we wire Farming Engine, choose one model:
+
+| Model | methi example | Pros | Cons |
+|---|---|---|---|
+| **A — Keep prototype pacing** | 20 real minutes | Familiar to playtesters | Ignores 20-min game-day calendar |
+| **B — Map to game-calendar** | e.g. 480 game-min ≈ 6.7 real min at 72 game-min/real-min | Aligns with seasons/day-night | Requires retuning all crops + UX |
+| **C — Hybrid multiplier** | ×N on prototype values | Easy migration knob | Still arbitrary without ag realism |
+
+**Phase 1 decision required (Arsalan + PM):** pick A, B, or C before Unity `PlantData` is authored.
 
 ## 5. AI Trader Schedule
 
@@ -98,9 +111,11 @@ Formula: `real-min = growTime-game-min × (20 real-min/game-day ÷ 4320 game-min
 | New game-year rollover | Day counter resets to 1; season restarts Kharif; player inventory persists |
 | Device clock mismatch | Use server-authoritative time via Supabase; client clock is display-only |
 
-## 8. Open Questions (Moraen)
+## 8. Open Questions (for SA / product review)
 
-1. **growTime multiplier for Phase 1?** Fast prototype pacing vs. realistic agriculture — need Arsalan decision before Unity integration.
-2. **Catch-up tick logic** (3+ days offline): current spec says "fast-forward to completed." Should player lose partial yield? Need Economy lead decision.
-3. **Paddy/nachni grow times** in crops.json are `null` — stub status. Require mandi research to set realistic values.
-4. **Day/night gameplay gates** (Phase 2): worth scoping? Could tie chicken feed consumption, water evaporation rates.
+1. **growTime unit schism** — prototype uses real minutes; `crops.json` says game-minutes. Which is canonical for MVP?
+2. **Catch-up tick logic** (3+ real days offline): fast-forward to completed vs partial yield loss vs server sim — economy impact?
+3. **Paddy/nachni `growTime: null`** — block MVP or ship 6-crop with 4 playable + 2 locked?
+4. **Season day mapping** — Kharif “days 1–48” of 90: does this compress Maharashtra calendar believably for Indian players?
+5. **Day/night gameplay gates** (Phase 2): chicken feed, water evaporation — scope now or defer?
+6. **IST cosmetic clock vs authoritative game calendar** — can players be confused when real IST ≠ game season UI?

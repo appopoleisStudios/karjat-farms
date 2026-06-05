@@ -2,10 +2,12 @@
 
 **Bot:** Telegram `@moraen_cto_bot` · Hermes `~/.hermes/profiles/cto/`  
 **Harness:** [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) v0.6 profiles  
-**Constraint:** **No CrofAI, no Groq.** Only:
-1. **NVIDIA NIM** free hosted endpoints (`provider: nvidia`, `NVIDIA_API_KEY`)
-2. **OpenRouter** `:free` models (`provider: openrouter`)
-3. **Ollama on Linux PC GPU** (`provider: custom`, Tailscale `100.79.34.78:11434`)
+**Constraint:** **No CrofAI.** Primary + verified fallbacks only:
+1. **NVIDIA NIM** — `minimaxai/minimax-m2.7` (`provider: nvidia`)
+2. **OpenRouter** — paid/cheap models when NIM 429 (`provider: openrouter`)
+3. **Groq** — LLM fallback only (`provider: custom`, `api.groq.com`) — smoke-tested ✅
+4. **Ollama Linux PC GPU** — last resort (`100.79.34.78:11434`)
+5. **Ollama Cloud** — optional; nemotron lacks tool_calls in probe — do not use as orchestrator fallback
 
 ---
 
@@ -67,22 +69,21 @@ model:
   # Do NOT set context_length unless auto-detect is wrong
 
 fallback_model:
-  # Tier 1 — same family, free OR overflow
+  # Tier 1 — OR paid (avoid :free — 429/404 in production)
   - provider: openrouter
-    model: minimax/minimax-m2.5:free
+    model: meta-llama/llama-3.3-70b-instruct
 
-  # Tier 2 — Llama 3.x tool-native (smoke test first)
-  - provider: openrouter
-    model: meta-llama/llama-3.3-70b-instruct:free
+  # Tier 2 — Groq (parallel tool_calls OK — smoke-tested 2026-06-05)
+  - provider: custom
+    base_url: https://api.groq.com/openai/v1
+    model: llama-3.3-70b-versatile
 
-  # Tier 3 — NIM alternate
-  - provider: nvidia
-    model: meta/llama-3.3-70b-instruct
-
-  # Tier 4 — Linux PC GPU (after num_ctx fix — see §6)
+  # Tier 3 — Linux PC GPU (after num_ctx fix — see §6)
   - provider: custom
     base_url: http://100.79.34.78:11434/v1
     model: qwen2.5-coder:14b-instruct-q4_K_M
+
+  # DO NOT use NIM meta/llama-3.3-70b-instruct as fallback — HTTP 400 single-tool-calls-only
 
 agent:
   max_turns: 40
@@ -112,7 +113,10 @@ smart_model_routing:
 ```bash
 NVIDIA_API_KEY=nvapi-...
 OPENROUTER_API_KEY=sk-or-...
-# Do NOT set CROFAI_API_KEY or GROQ_API_KEY for GroundWork rails
+GROQ_API_KEY=gsk-...          # LLM fallback only (Hermes custom → api.groq.com)
+OLLAMA_API_KEY=...            # optional; not in orchestrator chain until tool loop verified
+# Do NOT set CROFAI_API_KEY for GroundWork rails
+# Keys live in ~/.hermes/profiles/cto/.env — never commit
 ```
 
 Restart: `launchctl kickstart -k gui/$(id -u)/ai.hermes.gateway-cto`
@@ -232,8 +236,10 @@ hermes -p cto chat -Q --accept-hooks -q \
 
 | Model / pattern | Why |
 |---|---|
-| CrofAI | Banned by you; 401 when credits empty |
-| Groq | Banned by you |
+| CrofAI | Banned; 401 when credits empty |
+| NIM `meta/llama-3.3-70b-instruct` as fallback | HTTP 400 — single tool-call only; breaks Hermes multi-tool turns |
+| OR `:free` models as primary fallback | 429/404 upstream in our probes — use paid OR ids instead |
+| Ollama Cloud nemotron without tool probe pass | No `tool_calls` in smoke test — text-only, not orchestrator |
 | OR `deepseek-r1:free` as Moraen primary | Reasoning decode risk in Hermes |
 | OR `gemma-4-31b:free` as primary | Unverified tool loop; previous recommendation was premature |
 | Long sessions without `/reset` | M2.7 timeout ~84k tokens — operational, not model decode |

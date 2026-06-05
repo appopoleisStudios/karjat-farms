@@ -9,7 +9,7 @@
 
 ## What Moraen bot is
 
-Moraen CTO is your **async engineering labor** on Mac Mini. You message it on Telegram; it works in the git repo, opens PRs, and reports back — often overnight while you sleep.
+Moraen CTO is your **async engineering labor** on Mac Mini. You message it on Telegram; it works in the git repo, **commits and pushes**, and reports back — often overnight while you sleep. **PM opens PRs; Claude SA merges.**
 
 It shares Mac Mini with Unity and Cursor but runs **headless** via Hermes (no Unity MCP unless explicitly wired later).
 
@@ -18,7 +18,8 @@ It shares Mac Mini with Unity and Cursor but runs **headless** via Hermes (no Un
 | Write markdown docs | **Yes — primary** | Yes |
 | Research (Agmarknet, web) | **Yes — primary** | Yes |
 | Edit JSON/config files | **Yes** | Yes |
-| Git branch, commit, push, open PR | **Yes** | Yes |
+| Git branch, commit, push | **Yes** | Yes |
+| Open PR (`gh pr create`) | **No — PM opens PR from moraen-Home** | Yes |
 | Merge to `main` | **No** | No |
 | Drive Unity Editor (MCP) | No | **Yes — primary** |
 | Play mode / Android build | No | **Yes (with you)** |
@@ -78,14 +79,14 @@ Goals (in order):
 2. Complete docs/geo/karjat-region-bible.md — 6 crops, Raigad context
 3. Research Agmarknet Raigad prices; fill paddy + nachni in docs/karjat-economy/crops.json
 4. Append docs/dev-log.md
-5. Commit + push + open PR titled "docs: Phase 0 time-system, region bible, crop data"
-6. Telegram report: files changed, open questions, PR link
+5. Commit + push to branch (do NOT run gh pr create — PM opens PR from moraen-Home)
+6. Telegram report: files changed, open questions, commit SHA
 
 Read first: docs/HANDOFF-MORAEN.md, docs/ops/moraen-cto-tasks.md
 Session: send /reset to @moraen_cto_bot before this goal (fresh context — avoids M2.7 timeout ~84k tokens)
 Models: NIM minimaxai/minimax-m2.7 primary (Hermes-native provider:nvidia); max 4 docs/session; retry on 429
 On timeout: partial commit + report; night 2 continues remainder. See docs/ops/moraen-model-routing.md
-Do NOT: merge to main, start Unity, touch secrets, use crof.ai
+Do NOT: merge to main, gh pr create, start Unity, touch secrets, use crof.ai, standing yolo goals
 ```
 
 ### Simple daytime task
@@ -121,7 +122,7 @@ Blocker: describe conflict or decision needed
 | **Day** | You + Cursor for Unity MCP / design decisions |
 | **~22:00** | You send overnight Telegram goal to Moraen |
 | **22:00–08:00** | Moraen bot works on Mac Mini (docs, research, PRs) |
-| **08:00** | Moraen Telegram report; you review PR over coffee |
+| **08:00** | Moraen Telegram report; **PM opens PR**; Claude SA audits |
 | **Weekend** | Batch overnight goals for doc sprints |
 
 Mac Mini must stay awake (Energy settings) and Hermes gateway running (`ai.hermes.gateway-cto`).
@@ -132,23 +133,19 @@ Mac Mini must stay awake (Energy settings) and Hermes gateway running (`ai.herme
 
 ```mermaid
 sequenceDiagram
-  participant A as Arsalan
+  participant PM as Cursor PM
   participant M as Moraen CTO bot
   participant GH as GitHub
-  participant C as Cursor you
+  participant SA as Claude SA
+  participant T as Arsalan trainee
 
-  A->>M: Telegram overnight goal
+  PM->>M: Telegram overnight goal
   M->>GH: pull branch, edit, commit, push
-  M->>GH: open PR
-  M->>A: Telegram report + PR link
-  A->>GH: review PR
-  alt docs only
-    A->>GH: merge to main
-  else Unity code needs MCP
-    A->>C: checkout branch, finish in Unity MCP
-    C->>GH: push to same PR
-    A->>GH: merge
-  end
+  M->>T: Telegram report + commit SHA
+  PM->>GH: review docs, fix, gh pr create
+  SA->>GH: SA audit devil's advocate
+  PM->>GH: revise from SA comments
+  SA->>GH: merge to main
 ```
 
 ---

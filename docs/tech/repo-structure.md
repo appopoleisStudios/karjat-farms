@@ -138,7 +138,7 @@ main                        # Stable — Arsalan merges PRs here
 - `main` is always deployable
 - Feature branches cut from `main`
 - PRs require one review before merge
-- Docs/` phase0-p0` merges to `main` after Arsalan review
+- `docs/phase0-p0` merges to `main` after SA audit (Claude) + trainee review
 
 ---
 
@@ -148,7 +148,7 @@ main                        # Stable — Arsalan merges PRs here
 |---|---|---|
 | Mac Mini (Tailscale) | Primary: Unity Editor + Cursor | Tailscale SSH: `ssh appopoleis@100.127.150.60` |
 | moraen-Home (Tailscale) | Secondary: docs-only remote SSH | `ssh appopoleis@100.99.243.39` |
-| Linux PC (VPS2) | Production: Supabase Edge Functions | Not for development |
+| umar-asus (`100.79.34.78`) | Production web + future CI | Not for Unity Editor |
 
 **Cursor Remote SSH for docs (Mac Mini → moraen-Home):**
 - Host configured in `.ssh/config` pointing to `100.99.243.39`

@@ -128,14 +128,32 @@ Send Telegram overnight goal (template in [moraen-cto-tasks.md](../ops/moraen-ct
 
 ### End of session — ship via PR
 
+**Moraen bot:** commit + push only — **never** `gh pr create`.
+
+**Cursor PM (moraen-Home):** always opens the PR:
+
 ```bash
 git add -A
-git commit -m "feat: add Karjat methi PlantData ScriptableObject"
-git push -u origin feature/my-task
+git commit -m "docs: ..."
+git push -u origin docs/phase0-p0
 gh pr create --title "..." --body "..."
 ```
 
-**You merge to `main`** after review. Moraen bot and Cursor agents do not merge.
+**Claude SA** audits the PR (devil's advocate — see [qa/pm-doc-review.md](../qa/pm-doc-review.md)) and **merges to `main`**. Trainee answers product questions flagged in review.
+
+---
+
+## 4b. Doc review loop (Phase 0)
+
+1. **Moraen** fills doc outlines overnight → pushes branch  
+2. **PM** reads every changed doc vs [HANDOFF-MORAEN.md](../HANDOFF-MORAEN.md) acceptance table  
+3. **PM** fixes factual errors before push; logs SA questions in [qa/pm-doc-review.md](../qa/pm-doc-review.md)  
+4. **PM** opens PR from moraen-Home  
+5. **Claude SA** comments — design holes, scope creep, contradictions  
+6. **PM ↔ Claude** iterate on the PR until robust  
+7. **Claude SA** merges  
+
+Moraen does **not** participate in the review thread unless PM re-scopes an overnight goal.
 
 ### Deploy (prototype web only, until Unity launch)
 
