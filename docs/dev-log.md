@@ -30,6 +30,13 @@ Three sentences per session. Feeds GTM authenticity story.
 - Three-agent model: Moraen bot (free overnight docs/PRs), Cursor interactive (Unity MCP), Arsalan (review/merge).
 - Phase 0 docs assigned to Moraen bot via Telegram overnight goals — not manual writing by default.
 
+## 2026-06-05 — H-032 smoke test + Mac Mini rails applied
+
+- Smoke-tested NIM M2.7 and Llama 3.3 via Hermes tool loop; OR `:free` fallbacks failed (404/429).
+- Live CTO config: primary `provider: nvidia` / `minimaxai/minimax-m2.7`; fallback NIM Llama 3.3; CrofAI removed from chain.
+- Added `NVIDIA_API_KEY` to `~/.hermes/profiles/cto/.env`; cloned `docs/phase0-p0` to Mac Mini (old Unity `Assets/` backed up locally).
+- Next: Telegram `/reset` + short test message; send overnight Phase 0 goal to Moraen bot.
+
 ---
 
 <!-- Template for future sessions:
