@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Karjat Farms — GroundWork</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1a2e;font-family:'Nunito',sans-serif;overflow:hidden;height:100vh;width:100vw;touch-action:none}
+#game-container{position:relative;width:100%;height:100%;overflow:hidden}
+
+/* ── CANVAS ── */
+#game-canvas{position:absolute;top:0;left:0;image-rendering:pixelated;image-rendering:crisp-edges}
+
+/* ── HUD TOP BAR ── */
+#hud-top{position:absolute;top:0;left:0;right:0;z-index:10;padding:8px 12px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none}
+.hud-card{background:rgba(255,255,255,0.12);backdrop-filter:blur(8px);border-radius:12px;padding:6px 14px;display:flex;flex-direction:column;align-items:center;min-width:80px;pointer-events:auto}
+.hud-label{font-size:10px;color:rgba(255,255,255,0.6);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.hud-value{font-size:20px;font-weight:800;color:#fff;line-height:1.1;display:flex;align-items:center;gap:4px}
+.hud-sub{font-size:10px;color:rgba(255,255,255,0.5)}
+
+/* ── TIME DISPLAY ── */
+#time-display{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:10;text-align:center;pointer-events:none}
+#time-clock{font-size:clamp(18px,4vw,28px);font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.5)}
+#time-phase{font-size:11px;font-weight:700;color:#FFD54F;text-transform:uppercase;letter-spacing:1px}
+
+/* ── BOTTOM TOOLBAR ── */
+#toolbar{position:absolute;bottom:0;left:0;right:0;z-index:10;display:flex;justify-content:center;padding:8px;gap:8px;background:linear-gradient(transparent,rgba(0,0,0,0.6))}
+.tool-btn{background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border:2px solid rgba(255,255,255,0.2);border-radius:12px;padding:8px 14px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;transition:all .15s;min-width:64px}
+.tool-btn:hover,.tool-btn.active{background:rgba(255,255,255,0.25);border-color:rgba(255,255,255,0.5)}
+.tool-btn.active{background:rgba(76,175,80,0.4);border-color:#4CAF50}
+.tool-btn .tool-icon{font-size:22px}
+.tool-btn .tool-label{font-size:10px;color:rgba(255,255,255,0.8);font-weight:700}
+
+/* ── INVENTORY OVERLAY ── */
+#inventory-overlay{position:absolute;top:70px;right:8px;z-index:10;background:rgba(0,0,0,0.7);backdrop-filter:blur(10px);border-radius:16px;padding:12px;min-width:180px;display:none;pointer-events:auto}
+#inventory-overlay.open{display:block}
+.inv-title{font-size:12px;font-weight:800;color:#FFD54F;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.inv-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.1)}
+.inv-item:last-child{border-bottom:none}
+.inv-crop{flex:1;font-size:13px;color:#fff;font-weight:600}
+.inv-count{font-size:14px;font-weight:800;color:#4CAF50;margin:0 8px}
+.inv-sell{background:#4CAF50;border:none;border-radius:8px;color:#fff;font-size:10px;font-weight:700;padding:4px 8px;cursor:pointer}
+.inv-sell:hover{background:#388E3C}
+.inv-sell:disabled{background:#555;color:#888;cursor:not-allowed}
+.inv-empty{font-size:11px;color:rgba(255,255,255,0.4);text-align:center;padding:8px 0}
+
+/* ── SEED PANEL ── */
+#seed-panel{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);z-index:10;background:rgba(0,0,0,0.8);backdrop-filter:blur(10px);border-radius:16px;padding:10px 14px;display:none;flex-direction:row;gap:10px;pointer-events:auto}
+#seed-panel.open{display:flex}
+.seed-card{background:rgba(255,255,255,0.1);border-radius:12px;padding:8px 12px;text-align:center;cursor:pointer;transition:all .15s;border:2px solid transparent;min-width:70px}
+.seed-card:hover{border-color:rgba(255,255,255,0.3)}
+.seed-card.selected{border-color:#4CAF50;background:rgba(76,175,80,0.25)}
+.seed-emoji{font-size:24px}
+.seed-name{font-size:10px;font-weight:700;color:#fff;margin-top:2px}
+.seed-cost{font-size:9px;color:#FFD54F;font-weight:700}
+.seed-time{font-size:8px;color:rgba(255,255,255,0.5)}
+
+/* ── NOTIFICATION ── */
+#notification{position:absolute;top:60px;left:50%;transform:translateX(-50%);z-index:20;background:rgba(76,175,80,0.95);color:#fff;font-size:13px;font-weight:700;padding:8px 20px;border-radius:20px;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+#notification.show{opacity:1}
+
+/* ── INTERACTION PROMPT ── */
+#interact-prompt{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);z-index:10;background:rgba(0,0,0,0.75);color:#fff;font-size:12px;font-weight:700;padding:6px 16px;border-radius:12px;display:none;pointer-events:none;text-align:center}
+
+/* ── MINI MAP ── */
+#minimap{position:absolute;bottom:80px;right:8px;z-index:10;width:100px;height:100px;background:rgba(0,0,0,0.6);border-radius:50%;border:2px solid rgba(255,255,255,0.2);overflow:hidden;pointer-events:none}
+#minimap-canvas{width:100%;height:100%}
+</style>
+</head>
+<body>
+<div id="game-container">
+  <canvas id="game-canvas"></canvas>
+
+  <!-- HUD Top -->
+  <div id="hud-top">
+    <div class="hud-card">
+      <span class="hud-label">Bushels</span>
+      <span class="hud-value" id="hud-money">100</span>
+    </div>
+    <div class="hud-card">
+      <span class="hud-label">Harvested</span>
+      <span class="hud-value" id="hud-harvested">0</span>
+    </div>
+    <div class="hud-card">
+      <span class="hud-label">Day</span>
+      <span class="hud-value" id="hud-day">1</span>
+    </div>
+  </div>
+
+  <!-- Time -->
+  <div id="time-display">
+    <div id="time-clock">--:--</div>
+    <div id="time-phase">Dawn</div>
+  </div>
+
+  <!-- Seed Panel -->
+  <div id="seed-panel">
+    <div class="seed-card" data-crop="methi">
+      <div class="seed-emoji">🌿</div>
+      <div class="seed-name">Methi</div>
+      <div class="seed-cost">5🪙</div>
+      <div class="seed-time">20m</div>
+    </div>
+    <div class="seed-card" data-crop="lalsaag">
+      <div class="seed-emoji">🍃</div>
+      <div class="seed-name">Lal Saag</div>
+      <div class="seed-cost">3🪙</div>
+      <div class="seed-time">25m</div>
+    </div>
+    <div class="seed-card" data-crop="mula">
+      <div class="seed-emoji">🥕</div>
+      <div class="seed-name">Mula</div>
+      <div class="seed-cost">8🪙</div>
+      <div class="seed-time">30m</div>
+    </div>
+    <div class="seed-card" data-crop="palak">
+      <div class="seed-emoji">🥬</div>
+      <div class="seed-name">Palak</div>
+      <div class="seed-cost">6🪙</div>
+      <div class="seed-time">22m</div>
+    </div>
+  </div>
+
+  <!-- Inventory -->
+  <div id="inventory-overlay">
+    <div class="inv-title">Harvested Crops</div>
+    <div id="inventory-items"></div>
+  </div>
+
+  <!-- Toolbar -->
+  <div id="toolbar">
+    <button class="tool-btn active" data-tool="plant">
+      <span class="tool-icon">🌱</span>
+      <span class="tool-label">Plant</span>
+    </button>
+    <button class="tool-btn" data-tool="harvest">
+      <span class="tool-icon">🧺</span>
+      <span class="tool-label">Harvest</span>
+    </button>
+    <button class="tool-btn" data-tool="water">
+      <span class="tool-icon">💧</span>
+      <span class="tool-label">Water</span>
+    </button>
+    <button class="tool-btn" data-tool="inventory">
+      <span class="tool-icon">📦</span>
+      <span class="tool-label">Crops</span>
+    </button>
+  </div>
+
+  <!-- Interaction prompt -->
+  <div id="interact-prompt"></div>
+
+  <!-- Notification -->
+  <div id="notification"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// SPRITE DATA (generated from ImageMagick pixel art)
+// ═══════════════════════════════════════════════════════════
+const SPRITE_DATA = `{"player":{},"crops":{"lalsaag_1":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAVUExURQAAAG1MQW1MQW1MQW1MQW1MQf///9uEgYYAAAAFdFJOUwAATsl2GzEedQAAAAFiS0dEBmFmuH0AAAAHdElNRQfqBgQFKirJMjemAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQyOjQyKzAwOjAwjVZ0mQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0Mjo0MiswMDowMPwLzCUAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDI6NDIrMDA6MDCrHu36AAAAIUlEQVQI12NgoCFgVA5WBDNYQkNDwAzW0NBQVBG4GggAAIN8BDmCDXf9AAAAAElFTkSuQmCC","lalsaag_2":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFKirJMjemAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQyOjQyKzAwOjAwjVZ0mQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0Mjo0MiswMDowMPwLzCUAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDI6NDIrMDA6MDCrHu36AAABCElEQVRIx2NgGAWjYBQMMGAkVcP798HBAQH//xNSJyi4du2GDYwEzWci1uKnTy0tTU3////38FftLzfc6v49/tX4yxuhnmoOgIDHrL/VviR/fo5bxW/lL9Gf78PVy1PZARuO/33/g+3HDgaG33M+/flYxMDA8JfhJ8MPBobfsz/9/JjPwPD3ww+uH7vh6vdQ2QELp8F9GvXl1ZdiBoZvP5+9ffqWgeF39Je3X8ow1NdQ2QFnF0HobbH41W1LhKpfRzUHSEsfP376NMNfCC/o2xkdjlhWDwYGhs8MTAyMDAxn9KB8iPxHqPo/hMwlORvCQG6uj4+jI2Yqnzx5y5b9+wlnP5JDgFYAAEzLa5x1ZtwhAAAAAElFTkSuQmCC","lalsaag_3":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFKirJMjemAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQyOjQyKzAwOjAwjVZ0mQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0Mjo0MiswMDowMPwLzCUAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDI6NDIrMDA6MDCrHu36AAABtklEQVRIx+1UTShEURg9M8YslYipKQs1srLALIZGkcUkwxQ2w4LCQiilWb9EZGshoVjMQpEaFqaU37KQsvYX8oanxyyMdzW3cS3ee/Py87x5C9nM2dy/c879+r7vXiCLLP4ZFrMCxqanOY4xQ2NLKMRxFkN/a6YXx+NtbYEAY0m/8Cbe6/OSTcKzeKnxjXxtegc87/G43ZoBq6bttAwgjTc+vgFAE6YQBuyRYnuhA0i2Cu+iCJCSmxAfBJibbtN9gOc9MTev+TidR0fHx1pmdAOQcbUhj6V+Gn29TYwC9oLc3vx+QMI17gBIiWvcvQAIp0V9mAOo+FqVmFV2ttN+uyZLsPKozlJBMkZcAPZYF+v4RXLAulkQSHWSCVL+ze/UZABLPekSrLMKVgaQuDD8MAmk6qRa6RzAOygokKqTaqQzgDwLgw/jGv8zlke+7hh2qdwL85XyqvfEiP8zFlxy7fsuTGZAxcCWPEb3zV0cjSj6Qz2GYQBy5LRIXvmUbm4Jx7w2r3UNwBNyYAViPlutdVVVtSwq/DxF79DzN/0RqRgaam6ur//+zmdmNjd3dow/oIwz8Nf4ABS6smtXRPPQAAAAAElFTkSuQmCC","lalsaag_4":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFKirJMjemAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQyOjQyKzAwOjAwjVZ0mQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0Mjo0MiswMDowMPwLzCUAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDI6NDIrMDA6MDCrHu36AAACKElEQVRIx+1UQUgUURj+1nZX2TSQCAkpLNZluoRGm+wG5p66eFhQES1DQgkiPVnHstoQCiLwVBetk1CLBsLWISQiLS3qELGsQy3ShEu0K7a+me3N7OvwdnypTDMeOtV3mfn/9//f9//fGwb4j38dLqeFuVxbWzTK2HYFqqvj8akpl6WO2+pAUUKhYFAIsqO0nQYA1xvPI0/KXpgFaSc9BChK6GtQETy1tXNzCwtioLLNjbOzkiRJjOkfjESxReTp07Wl/JDzzWliTc4Pilj/aCSKEcFvOQDH0kNynjbqd0TG6FavqfUAnrPTrOMPyi9YL+sGjFPqDVUSaXKONui3Bb/NAI8D+d7COK37zdJJdpgFADWXGVweAYxmcpwsAiiCggJGMwmTFKBmMxeWY6LeRP5s4QE9sM5/0Hzb8nFwi45FefR6cvcnX1dFBqiMlD/x+J1fwbrws8JJKgPf/WRCqzGzTe3hcDKZTM7HLRyYH+HPdCybIpVaH6B10hb9jHNhrYOe0HuArEyqtD4zmx4u8ccsHdjohP8mjxYvogZV8AG+Lk+d+xuw62XFXu8RoFxxv9rxBSjs18PGPmC1SVN+vgXIBE3rewBk8APEZK2/xTeXL9kOsHGQhis8eje8/UsAgMbLXPj99c0nZXatpcarPNpZuoR+eeW+d8x9F0CRL7Ey5h133zO7+j+X6nushB07YIWBgdbWSGTrn3F0dHp6ZsblmNfWgb+NX8a07Ly8HUhXAAAAAElFTkSuQmCC","methi_1":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAVUExURQAAAG1MQW1MQW1MQW1MQW1MQf///9uEgYYAAAAFdFJOUwAATsl2GzEedQAAAAFiS0dEBmFmuH0AAAAHdElNRQfqBgQFKirJMjemAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQyOjQyKzAwOjAwjVZ0mQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0Mjo0MiswMDowMPwLzCUAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDI6NDIrMDA6MDCrHu36AAAAIUlEQVQI12NgoCFgVA5WBDNYQkNDwAzW0NBQVBG4GggAAIN8BDmCDXf9AAAAAElFTkSuQmCC","methi_2":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFKirJMjemAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQyOjQyKzAwOjAwjVZ0mQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0Mjo0MiswMDowMPwLzCUAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDI6NDIrMDA6MDCrHu36AAABC0lEQVRIx2NgGAWjYBQMMGAkVUN39+HDXl7//xNSV1pqa7ttGyNB85mItbimZvNmJ6f///9e+jvnnx9udX+v/J33zx+hnmoOgIDHrD93/rD5I4dbxc+tPyz+yMDVy1PZARuO/077LfGvh4Hhx6sfCb83MDAw/GH4zfCPgeHHix9xv9czMPzO+C31rxeufg+VHbBwGtyn7D8m/PVgYPj49cPXH78YGH5y/pj01xNDfQ2VHXB2EYTeFotf3bZEqPp1VHNAS4uv7759DH8hvKBvP9Mur/jfz8DA8I/hCwMDA8PPtMur/vfDVAd9hKr/Q8hckrMhDOTm+vg4OmKm8smTt2zZv59w9iM5BGgFAMDmbwRkrVT1AAAAAElFTkSuQmCC","methi_3":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFKirJMjemAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQyOjQyKzAwOjAwjVZ0mQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0Mjo0MiswMDowMPwLzCUAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDI6NDIrMDA6MDCrHu36AAABuElEQVRIx+2Uv0sbYRjHP8aiS1EcWh0ciiJY3fofmKmEJKiTgw4FAyI4FKEtEgmCWCWCUsUlKgqKzeLgCZolES04SbtkC0XHk7SSA0Py2veuw108W3s9bxAXv8v76/v9vg/P87wvPOIRD4wqr4Lt7Wx2YsIw3Hi9vZ2dsViVq7/vrhfH40dHgYBhaH3l92rJmVfoKY+qP22+m+8Tp4NoVFH8fttAhuULfR7yNUX97CkYPYwyDfVbtTONNaD1lz+oOvyYK/rO3oHsli16EaIFRfGXbJ/JyVAonbYz4xiAie+KObaExJJ4KRehurl6z5eD/Owlp0CeS+0UYIYxAAQQAfFJtMlWoJ7kDb8DjyVInldmYkq0y2fAOglO/iPZYJWvIKZFh3x+y++bxwDW3lxPPxoxMqANFWKlAxADQkoDkEh0EAPil9RBixTGSxmb/yfW3/6949qlZi8kXpmrwRM3/r+x3GbWPpLzmIEKhvfNMXXo7eLUjqX/4sRwDcCM/Mqq5murm8Ob8rNayzGgcwEgk2oDxxVVeMXi11n6Jid/zx9RBSMjwWBX1+13vrCwu5vJuH9Ad87AfeM3ymCx3DAS6PMAAAAASUVORK5CYII=","methi_4":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFKirJMjemAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQyOjQyKzAwOjAwjVZ0mQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0Mjo0MiswMDowMPwLzCUAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDI6NDIrMDA6MDCrHu36AAAClUlEQVRIx+1UTUgUYRh+VnfTtD8za01CcKlQ0lUoJYVCwQ7lQuJPBynM2OgHCUovYbXhhgcpD0sF6SXIQxqRaFEd9CBLIPazRNBi2uyfOqvh7sxsszur83WY0bFkmS2ILj2X4X2/53vel+d75wX+4x9D87sX7HaXq7eXEDVeWVl2dkODRlU/Id7CPT3j42YzIQufwgd8+2PzFt6Gi3x7Ff4fO9DWNjhYUaEI7GzM6N7lBJJYXVZyHrBjdMNjQweQlpc8ljUGLDjDJb5SgC7l6idbgEhadDY8AUz3zDV5DIqu1WoyDQ8rzqxpoK6us9NoJCRn1vBmyy1Ad1h3OvEOsHEgxb/JDaRf2mzMKFd37Nvt4Lu51wBb8z2TMQDR0ejDpSvA1PbJksBVoL+/tdXh0GhiPIG7n3nK1AvtSoar5in2IECK0UQMsQuTMpwluQBXx3vYQ0qe6WNqhJuKvsoMDOxhGoOaCLVKWCTFxAd4RPoEdQTgBL6bdQIQEEUE4CL8A/Yz4InStVSFwl9p4EwwIeJa0c9RaeCRRUgR3Et6IHg3UBi+ppyIT8QCsQWYnw5U+bUANT0zP+kF5mcCJr8OEPvEfPGywg/aAgXhNkBYL+nJ+h0qDYzJBMpK76PvhVxAKCv0URhQf/tlhPQhh/AMoPPp+yH3cpayyPrWmA1Iw4FcKapMInqyFV2Ad8JjYI8CvlfedcwLgDfx2xZHAQgQsATw1bx+0Q74Xnq1zHPAO+XZzR4DSCZJR9eyemXqz/pxLCLpryi8IUXvLfF7sBpF16XCH9p/PVFdRPJFeX5TT0lf8xftBe584nEAAAEA7UXunBwDMH+V+SdjFY7bgVhobq6qKi9fu+lstqGhkRH1FRy3A38bPwCvQy1/4WErZQAAAABJRU5ErkJggg==","mula_1":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAVUExURQAAAG1MQW1MQW1MQW1MQW1MQf///9uEgYYAAAAFdFJOUwAATsl2GzEedQAAAAFiS0dEBmFmuH0AAAAHdElNRQfqBgQFKirJMjemAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQyOjQyKzAwOjAwjVZ0mQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0Mjo0MiswMDowMPwLzCUAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDI6NDIrMDA6MDCrHu36AAAAIUlEQVQI12NgoCFgVA5WBDNYQkNDwAzW0NBQVBG4GggAAIN8BDmCDXf9AAAAAElFTkSuQmCC","mula_2":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFKirJMjemAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQyOjQyKzAwOjAwjVZ0mQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0Mjo0MiswMDowMPwLzCUAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDI6NDIrMDA6MDCrHu36AAABEElEQVRIx2NgGAWjYKQDRlI11NRs3uzk9P8/IXUtLb6++/YxEjSfiTx3n3qPX/60JLEmEe2A//+zs7Oz//+PDj13TmaamSAuddGp547KzDZ9DlNP5RB4zKqh9+oV72QGBvf5Nw3EpBgYGFQZ3jDwMDC4r7+pLibPwKAh9+ozbx9cvTwhE1lIc8CG4xA6l8Hmyf0OYX4GBhuG+wzC/AwMDHEMZ7Co3wNlqFEpBBZOI1F9DSEVJDrg7CIIvS0Wv7ptiVD166jmAEbGqVOnTmX4C+EFfTuw61PU22YGBoYPDH8ZfjMwHNjzKfptM0x10Eeo+j8EzSUtBBAgN9fHx9ERM5VPnrxly/79hPM/ySFAKwAA5cZWu3TfbQUAAAAASUVORK5CYII=","mula_3":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFKirJMjemAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQyOjQyKzAwOjAwjVZ0mQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0Mjo0MiswMDowMPwLzCUAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDI6NDIrMDA6MDCrHu36AAABjElEQVRIx2NgGAUjHTCSqqG7+/BhL6///wmpKy21td22jZGg+UzEWlxTs3mzk9P//792/PL9swy3ul9bf3n9WYpQTzUHQMBl3e8rv0v/6UNYxPCX4Q/DPwaGX9t+ef9ZysDwfc13uT/9cPV+hEzEGUT//2dnZ2cjfHCWW6bvw14Ghg1FOrueSxF2asC8K3aSrxkYjJ8+qRKwQ7KQcerUqVMRUUMgBO5thrH0Lz/bzv+DgYHZ9p8FIzNuHcxq/1wZ/zAw6B9+tp//M4Z5B0iMgpWvYCwWpX+7Gb0ZGMr37t+nqsXAYGjx9DN/BgMDgxTDJwYOBgZDu6cf+DMZGMrP7N+qqo9Qj2beBRKjQO0vhHeTxLSCC2gwQqLgJuEQgCi8BQ3sOcaUWTxHFd1igg5ABVk7IPTOQ6RZvHMTVP8RXCoIOgDi8t9iEJ4HNFf4LX1Q8FPs+yIGBoaXDL8ZfjIwPKj7KfkdXj74zYWq54Pql8BpPrmBmpvr4+PoiFnQTJ68Zcv+/YRLQKJDgNYAAP6Qm2BEgs4hAAAAAElFTkSuQmCC","mula_4":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFKirJMjemAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQyOjQyKzAwOjAwjVZ0mQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0Mjo0MiswMDowMPwLzCUAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDI6NDIrMDA6MDCrHu36AAAChElEQVRIx+WSXUhTYRjHf+pcm5NSNEuTBDOCqECiZswuGqI2EAoipQ+7SIhujGSKlZiKN6YY3QhRGAV92EUSIzOxObNoYzclRUR+9OkoJZdTt52d7XSxdOLMebrtuXn/vO///N7/+zwH/veKkvuB1To2ZrNJUiRfTk5amlYbFZEfvdKLm5sHBgwGSXJUTpXYB//uc5yeOmjvCfn/uQM1NSaTXh8CaFo1+tiboDQo36zKgMzh5PL8OkhtWn1311ZwXJg6Zh+FkY0Tl3sqQXgsbPN+gZmKGbPvRIjb2FhUZDaHOhOhA68655Tb6skV2yGglQSxEIaOjLd0WWHg9fC3+nYYOjze1NUHgRxJEA3gtnn2ijfCeH0yR3DFO6cC9/0NUj+4Cl1nvFoQa33Z/quAiI8AiA2+3f5r4CpwlXu1EOjw10uWMJ5rxSN4ntFyqORBQkJ32ZajP9omJ/GiIBBpoktUMjMoobDrfVtKRaImt8f47F6+czZiB3QfR9clPdVFGZUWXdYBIA0XahkXqxGJAaPPsi+rCHRPRrcnPdTFLbYplqcUb1hT5amPfQd1envZThMMqtMNLhFeKhPfjqnAoVNZpgsgtduTpzHBnuTJzHQF7Pj+tTfeDzF9nobZ8nnepuD6aGKFAfKK51SMWZWijoNsnGc11ZCN8/r62gVWI0M0AlBFHYBqbUATPJo9Oc/b/0fYIo4gWKmVC5p1K7pKxghQ3I6uDuNdXLwTIYCjNaTF0sAlOQGW8juaZQbo7Qxpd6n3vJwA7uPec2G8OzIDdIyE9PQpT5acANNlnsww3ufFOxF+QvOvkBb6xRcA7njBCaBOUm5e8uU/hQ8AwidxfDlesH4D5gvz/rZRTqkAAAAASUVORK5CYII=","palak_1":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAVUExURQAAAG1MQW1MQW1MQW1MQW1MQf///9uEgYYAAAAFdFJOUwAATsl2GzEedQAAAAFiS0dEBmFmuH0AAAAHdElNRQfqBgQFKirJMjemAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQyOjQyKzAwOjAwjVZ0mQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0Mjo0MiswMDowMPwLzCUAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDI6NDIrMDA6MDCrHu36AAAAIUlEQVQI12NgoCFgVA5WBDNYQkNDwAzW0NBQVBG4GggAAIN8BDmCDXf9AAAAAElFTkSuQmCC","palak_2":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFKirJMjemAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQyOjQyKzAwOjAwjVZ0mQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0Mjo0MiswMDowMPwLzCUAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDI6NDIrMDA6MDCrHu36AAABCUlEQVRIx2NgGAWjYBQMMGAkVYOz84IF7u7//xNSt3dvQsLOnYwEzWci1mI9vdpaI6P//3/3/Jzyuwe3ut8Tfs76PQGhnmoOgIDHrN8uvGf9dgG3im8n3//+dhKuXp7KDthw/Ff/V5df/QwMX9a9VfqyjoGB4RfDN4ZfDAxfVr+V+7KageHXpK8evybB1e+hsgMWToOxvtt+2P3dloHh9ce7z19/ZGD47vBh/3cHDPU1VHbA2UUQelssfnXbEqHq11HNAZcuNTefO8fwF8IL+ia951Ue2ywGBgZ2hl8MTAwM0ruhfIj8R6j6P4TMJTkbwkBuro+PoyNmKp88ecuW/fsJZz+SQ4BWAABhImxkCMfSqAAAAABJRU5ErkJggg==","palak_3":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFKirJMjemAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQyOjQyKzAwOjAwjVZ0mQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0Mjo0MiswMDowMPwLzCUAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDI6NDIrMDA6MDCrHu36AAABtUlEQVRIx+1UPUhCURg9/iEVKf0H1lI0tDg4JC1BRdlQhsvLwSWoBqGgOaTBSRAchIZ+wIaIhhrKoXIworEknAoikGgpH3mRx7v+xG142qPMni+Ils7y3Xs559yP7/vuBf7xjz+GRq1gYSEW83oZU+Ktr4+Nra1pFP21tV48OhqJOByMEbdwSNzVecQl7BOXzP9xBaxWn89mkw2aprtvm6YBw6Wx1XAJtCyZX1uWAPNug9O8CxCPECUegA8RDR8CCvZcpmAHXg4eel8OZN9k0u9PJOTK6L/P7/5Iij1TooHUiQZAn28b0OeBdDCDdBBII/OcBoAA7AjIShHkVKz0O1PZgr2n8opy2UHKAWyF9bKV6gq2yvrZKkDd2SFa0aq9a5UJRGbflxx7BAfwYmqcFwHalb2lXQCKyKEIUEv2hloAXkiN8ILM/4jt5c8nilMqzcKGTdrNXSnxv8Zmn9T7+TuVFSjDeyzFk3N1F58clvQX1RiKCUiZF9ql3UTpVTh3TI1Cs84NoB4UWsBkFDp0M2WVc6vEN5X0ndX8VX9EZSwuTk4OD1e+83A4Go3HlT+gmivw23gDlTymfzwkKXAAAAAASUVORK5CYII=","palak_4":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFKirJMjemAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQyOjQyKzAwOjAwjVZ0mQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0Mjo0MiswMDowMPwLzCUAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDI6NDIrMDA6MDCrHu36AAACd0lEQVRIx+1UXUhTYRh+Fk5bSydJDJyIlAXdLFvUchfBEvTGi6BaGiQRSDRYULEKdM2xQVg30aprES8CCTeQbiKMQiwvzCSi2XE/wgYqk635cX52tq+Ls3G0cTjzIrrpufnO+3zv+7zfeb6PF/iPfwzNbgt8vrm5QIBStTyvt7NzeFijqr+n2sZdXWNjPT2UpvZlJlNu5bxUMTORuinnq+nWKG2YzR6PxSILiDbhjWgDoqPrt2JGAE5MYAVoJo0XmkeBVGNmKjUERJ+t98daAdElvBTdgHnD47FsyDpLS37/woLsTIUDJtPAQFsbpYU74rfCc5lntVkdqwWKxylTtALM7NqplSvAh8XI6sevAPN+7eSKAyh2UKZ4BmCRBbtNt3BX/F54IeurXMHqpOAnTmFZZjhHrpNzAHSIHqZDypZSLz1GvQDXlzvL9cm84CM3hIisr3KA8FE+Tq7x9m2UgybhANJsojvNAlxLLsK1ABDBQwQ4U+4HZwLSJHEuTeT8MvgEuS7rhQ+VvypeqWTR6fNS9HlK/7Qpqt8C9vr32+ta1Z5UJbjhrXd8AiC30+2kvsxaLyaT4+Px+PxrBQfmH0lrPEASm8vkPiCE2ct5vvrGQoi9lOcAsrrJkAdlNj5S0g8oOrDTifbHUvTTjQYY0QBo3+r6tS5AV2+Y1QUBra0uWaMB8p/4VlEDsJmslXUC+W72VT4I4BfWkCurHnki/TlzT/UAOw/S4ZWiLyO7vwQAOPFQarzo/3NHdRCVCn1SpB+Q1kHGcLAQqj1QUtAABmMhVNtUrhqMlfKvKjWu2gEluFy9vXZ75aQLBqenZ2bUR3DVDvxt/AYu/BzpxffSXAAAAABJRU5ErkJggg=="},"buildings":{"bungalow":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAwEAYAAADx26BcAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFLARDvp3vAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQ0OjA0KzAwOjAwZ9I/HgAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0NDowNCswMDowMBaPh6IAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDQ6MDQrMDA6MDBBmqZ9AAAC/ElEQVR42u3cT0zTUBwH8C/bQgZb5hCDQGMMZMSDN6LxQJAlQsTEBE30JsPIxYtc5UIIISbjihcuGIbe9CCJiX/AiOIOJsaEgwdhjBipTAxhLhsuy8Y8dD8qg6ZMNjv2fp/La5u3dm2/77Xp1gcwxhhjjDHGGGNMFGV6FXw+r3dw8OIZZW6gTylbuo3+4mw//DNKOTzS09PfPzT0cia7hmYAlBM/+k6Zu9Nq9K6wfLg/pwSh7zwt2RWATItvV+ZeTNPy1LdkNPkIiJVHpsOTQMIcPxd/YPQOsWzlZdZP1tuALepodV4HzCctRyw92bU6z2Z6hI+mvVczcJemUl+Tv5I+YKNiLRJy84kvdol0vDk+BmzY1mKhC2rD3Yku5YBl79W0tNNUzB6ZCz8GkEYzxoCym6a3pu+AJDVcc0lA9bO6U5Lb6N1m65dWP8szgBxafhr4AaQnttq26tUe24GjV4+9otrb93Aek96KKVFEqm244jrOJ77YVD+vOy21qw2T6PXYFv1V770hIsvB4OJi/ndIkhobm5qU0uUq5KH7P2Q5GAwECn+8qGGuzC/9XHij/zndHoCVNg6A4DgAguMACI4DIDgOgOA4AILjAAgu5wdB2egBRKHQA5RSUejjlasDB6DYTU1NTo6PH3w9XV0eT2+v0XuTfyUfABIOR6Obm7l/zum02ysrjf72hcP3AILjAAiOAyA4DoDgOACC4wAIjgMgOA6A4DgAguMACI4DIDgOgOA4AILjAAhOmJ+DS/1n3X+VcwDWL69+kWcPz7uBpfpHDi30kii8AMz69XUvAeUp6wfrLXVelpefBOS/NsSKAjVMejuY0HgBWjR6AP9DpWzptiUcHU4PkKiIR0Ju9bXjFe/SxgKAlfml9/t5CZEV2L1MOYE21KuLaaAIVAPYHijCv910NXqA4VGaMp+w2C03gKpYja32tX6imLGox676XeOondUaIWR4hKZ4jCCh7B4jSPMeYGfFzg6l9PNV/1ChSzmNCaSeeMYAAH8AgU8FQueMVlcAAAAASUVORK5CYII=","shed":"data:image/png;base64,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"},"environment":{"coconut":"data:image/png;base64,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","grass":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAIAAADAAbR1AAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFLARDvp3vAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQ0OjA0KzAwOjAwZ9I/HgAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0NDowNCswMDowMBaPh6IAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDQ6MDQrMDA6MDBBmqZ9AAAAqElEQVQ4y2P08Vm/PiCAgWaAiXZGD4QFf8R+df0R+3ji+ZOPJ958vP/8zcePJ58//Xjyj8iv9j8iVLDgw72nSR/u/Vb58fu3CsNvhh8Mv38r//j1W/nDjacRH25QwQIBBenZAgqstzmYWW8zMDGwMDCx3uRgYL0poCW9WkCLPAsYB3UqIibOKLKAmDijyAJi4mzg4oBaeQKnBdTKEzgtoFaeGNz5gBgAAKu7oPNKlDMXAAAAAElFTkSuQmCC","palm":"data:image/png;base64,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","path":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAIAAADAAbR1AAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFLARDvp3vAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQ0OjA0KzAwOjAwZ9I/HgAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0NDowNCswMDowMBaPh6IAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDQ6MDQrMDA6MDBBmqZ9AAACLElEQVQ4y2NcuLCjo76egWaACUL9evCD83vuB43X6a8uvnn37MWTZx/UXqe+Ov/rwQ+u77mUWMDswWFhaOzwRfHD6/fr/j36d+AvF8N/hv8M//89/nfwL/dPtu/vvu9hPMD4i5GXVZWNi52RZB98tf7E+PEtfkVfzT79/PiUzCDiPsz3j18QvyLuE3ws/BJkWsDpzSPCy8T3WUhJuJ3FlrWZ7T0DCwMrAyuLLWsT2zu+z0LKwh1s8hxfOSd+/fxp0cf294kvxZ+HQOIJwv766dPCj21/L/25+6cH0wJG/KnoZ/I3qa/hnzs/nHnfS4x7eSsFzAXL2GdzPeZeBvUBfg2f+z5cej+F+AD53P7h5PsulCAi4KJiAX1BEpIpb6WAuWA5CRawz+F6yr1C8LnYT4lVnOw8e3mXMJcyGzEXMjAxMDMwM5cyGzEXcLLx7OZdJPhM7IfECvbZXI+5lxKwADPTfQ5+3/bOkfUtWzrbU8H54i8kV4sISYnLSArOF38huYa7nHc23/LvZV+ff+F98+3Z5ycfv/h+PPVhHkPmf+v/OiiR/H37l7efGb6afvr58QkuP3Gf4mPnl+b04hHmhWa6L/4fz35Y9GPuV8kvTsgqOeK5H/HsQPEBeZnux9Kvyl98MVX+WPhV7osHigXkZTqOCO6bPOswVXKkcL/g2Y9iATGZjtOHR4yXBVkXjxxfCf9EiHEMrAxsDGwcSdzPePbySPHl8/cw0rq4BgBAiv3FdyPH2wAAAABJRU5ErkJggg==","soil":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAIAAADAAbR1AAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFLARDvp3vAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQ0OjA0KzAwOjAwZ9I/HgAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0NDowNCswMDowMBaPh6IAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDQ6MDQrMDA6MDBBmqZ9AAABzUlEQVQ4y2Ps7c3LS05moBlgop3RA2HBrwc/In7s/qDxxvDVnDfvnr98+vyD2huDV7Mg4uRZwAKhvm//kvK57POdjwc+tP18/fvVn29/Jf59//+TeenPe79+/Dr28/PPU7yq/CkCHzm9eObwdpFswVfrz92fKr7p/fz8+zPDb4Y/DH8Z/jIwMDD8Ff134b/PN/+fDL8ZmHg+H/nEzsnAI8krTXIQcR/mLeFr51rD7si6hPkVkz7jZgZGBkYGRuaXTPqMmwS6+Cv4IoTkxJZJlJEZRJzePHN5u5nvs4Sx7vzm9eXe56d/jv++/8uHZzafH/8njmncS3lOMTAwrGI4RaoFjEMgH3y1/NT+sRhXeiPdgn8M/xj+/Xb9Ffrr35utr869LH+96k3k29zPS7/c+/rjw8a3p1+f+r7tS8pnaGyxkGr+my/PPz798GXB996fnxm0GQQY0hn+MvzDnd5ItgCS3v7d+Xfgg8BPy9+v/vD8Ff936b8f8wsmPcaN7KdYxVm+cSvy2vK9ZfBhmM/QS7IFuNIbiwerGhsvlxiPCq8smyLHfA43MoMIAtgUOVZxuLNd52DgYGAQYBBhYGC4znCWIZlBkeEsqkqaF3YAVnLfwL5L8swAAAAASUVORK5CYII=","well":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgEAYAAAAj6qa3AAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFLARDvp3vAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQ0OjA0KzAwOjAwZ9I/HgAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0NDowNCswMDowMBaPh6IAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDQ6MDQrMDA6MDBBmqZ9AAAElElEQVRo3u2YbUxTVxzGH/ty762FvlgZDkYX3MxgQ9gML2XLEguabXGIsgAVyRIUY2YRyQYGyDJhcWp0y4hYljmUZENWNMEhY8si0mVfeN9U2MDo7FahGeu60gK2vX1hH+iFTT9IWwtm9PfxNvc55//cc07P8weCBAkSJMjyZUWgB1Dlql9p1URs5JSymznp+y1UBKnmmhTPrvyJElDx0hSuk7OG3cQqcnCcf7jy3LV3X7CZbdd1PTa9fYdDrB5xfujKdV6pDVU2K77LlOu/f+QNUAnVIa0nRAaqh5QRxS0cyYiwUtAvF/mra4wxH7EkaiZsKfZu+mSWU2lWTGWWTYQ9MgbUNTYrLrXJEyKIsAKJoPMqCHDBATCIm9AC04esH9lOAYZOU775OcB0xHJuMgmwp9IHHDyA7CZOcq2A+F1BfugAELZR/LlwEOBX80qpIgBxeBrRAGg44AT0tKHBaEl7fl9+rnprhubakhlQ19i841KbPDkiJGyPZFVnD/PcGmVvo98DRiq03+iyAfsG+i0Hx3t9sp9QcWkg5nh0hrQF4OnI14nq+d/1U4bPjH+nyfbl5365NUPT462+zwaohOqQ1uOi0cizj11cLTNFgg022IBZOtU1HQkMn7/N13X4a+/9xGavnZSmA8I7IS/x9QBccMENjO36c/tfXeJRpVkxlXlwImqheixfJ0L1kqlESUs4U7hVav+aPhS4whmGL9wO1V0BrE/a2+kqAGywwQKoPjKVKGl53Fs9rw3wnOqbJMPCCkGfnIMh3IIWGCnXtuveCFzh9zJSqm3VbQMwhFv4DZD8IqwQ9MnZzPwWqvPALbB5c15eYeHMzOKVFhguX25qqq9fcV+9Pm+B/wvL3gAf/phmUSoLCwsKgO7e64PDIwDcmMESbhSZLD4+NhZQqerrGxoW/p7fK4DsIWq5tqUr3N/x/TZAXC0oCPX5HuY/4vcFu/wZ3+uL0Kf9F8zt7KPp4aOSAdEP5R3T26x7bW8Dg+U3ldo9i2/A+mPrTkWfBvhf8U5THwPjkcYNEy8fS9yblC3a4q4YeND7Xq8A5wlXjrOjdu7s4B/mlVHF81fWxYIcIOq4DoB/mHeQOvCv+XnS40J1fL4Kn7lxcdO3dOeUZFhYKeiT85mb2bXmG1G/5gbegIScZ3RPqeezAZMWd8ds73iNTBMvVMfnM8CWbO+ma7LMcMENN8D7ndxCVAGx2WunpOmBKzw2Z1Z/LhR50iETk73V89kAT+iI1FsNZ4wTaSnMc+GdkBf5+vkvxCxVXyF/JD7hOoCE7Fk9oW5Wn4GJxb72Bx5mP2A2FvPCdktEnT1ggwUWgKF7+gEa05vmOMD0gaVxMhGwy+ji//QDKgU7Q/uBsDTxF8IhgF/Fe4cqArAe6xCNufSntxrOGid8j8EP3QAGT0weo3pJGVHSImTOCH91jbHmo5YkjdOWbO+ia7LGPSvwCX91F6sn+CqnjH2es2m/g1pDNnGNitUr+6kQKk4q4zo44exzrBIH1znu2umuuZtsm7b9rLtqG7MrHGL1oOdUX+XpCQYwaAcJEiTIMuQfwpfxFsgTqRgAAAAASUVORK5CYII="},"npcs":{"elder_down_1":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFLARDvp3vAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQ0OjA0KzAwOjAwZ9I/HgAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0NDowNCswMDowMBaPh6IAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDQ6MDQrMDA6MDBBmqZ9AAABnElEQVRIx2NgGGDASKzCN2/ev//48f9/Ui0QEREU5OdnxGkPEyEDNmzYt+/o0f//Hyx5NvmlK/EWP1j+bOpLd4R+sh0AAQsVnyi8tHndz8BwXePelUeBDAxfPL7N/b6GgYHhK8N3hh8MDF+8vs3/vo6B4bravUuP/BkYnsi+tHrdC9fvhctkFuIcUFTKFM9YwbAhTvHtwo8dn5oZ779l+Gj0iYGBgeE8ww2GOwwMDFUMBgxqDAwMDAx/GVoZGJhiGcsZNvxX+bf4fydDQFE+1KDt6CYTnQb+Nt74v8Xl/4bH+t/V2SYy+N/T+1LIsZWB4dO939rMFgwMfKqs1/4eZ2BQusDT98OHgUH2HOeNXwUMDMyNGkw+u3GnAaId8P//zZubN2/OhPB8phGna0s+I6O6uq+v7ySSHVBZGRrq4fH//5cv37///EmsM3EDHh5OTnZ2Bob29tWrd+xAhAiRiZB2YNQBow4gWBDBUu+TJ69fv3+PKS8jIyoqKEhYHhcguhyIjXVwMDfHLNMXLz5w4ORJRkZC8rjMHfAoAACkSp/V3EvuewAAAABJRU5ErkJggg==","elder_down_2":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRP///////wlY99wAAAAHdElNRQfqBgQFLARDvp3vAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI2LTA2LTA0VDA1OjQ0OjA0KzAwOjAwZ9I/HgAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNi0wNi0wNFQwNTo0NDowNCswMDowMBaPh6IAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjYtMDYtMDRUMDU6NDQ6MDQrMDA6MDBBmqZ9AAABo0lEQVRIx2NgGGDASKzCN2/ev//48f9/Ui0QEREU5OdnxGkPEyEDNmzYt+/o0f//Hyx5NvmlK/EWP1j+bOpLd4R+sh0AAQsVnyi8tHndz8BwXePelUeBDAxfPL7N/b6GgYHhK8N3hh8MDF+8vs3/vo6B4bravUuP/BkYnsi+tHrdC9fvhctkFuIcUFTKFM9YwbAhTvHtwo8dn5oZ779l+Gj0iYGBgeE8ww2GOwwMDFUMBgxqDAwMDAx/GVoZGJhiGcsZNvxX+bf4fydDQFE+1KDt6CYTnQb+Nt74v8Xl/4bH+t/V2SYy+N/T+1LIsZWB4dO939rMFgwMfKqs1/4eZ2BQusDT98OHgUH2HOeNXwUMDMyNGkw+u3GnAaId8P//zZubN2/OhPB8phGna0s+I6O6uq+v7ySSHVBZGRrq4fH//5cv37///EmsM3EDHh5OTnZ2Bob29tWrd+xAhAiRiZB2YNQBow4gWBB9+PDly7dvmOIyMqKigoKY4k+evH79/j2mOCwXoAOC5UBsrIODuTlmWb548YEDJ09iFjCkqh/wKAAAUTifiYtYEFoAAAAASUVORK5CYII="}}`;
+
+// ═══════════════════════════════════════════════════════════
+// GAME CONFIG
+// ═══════════════════════════════════════════════════════════
+const TILE = 32; // pixels per tile
+const WORLD_W = 30; // world width in tiles
+const WORLD_H = 20; // world height in tiles
+const SCROLL_MARGIN = 60;
+
+const CROPS = {
+  methi:   {name:'Methi',   emoji:'🌿', cost:5,  growTime:20, price:15, color:'#7CB342'},
+  lalsaag: {name:'Lal Saag',emoji:'🍃', cost:3,  growTime:25, price:10, color:'#E53935'},
+  mula:    {name:'Mula',    emoji:'🥕', cost:8,  growTime:30, price:20, color:'#FF6B6B'},
+  palak:   {name:'Palak',   emoji:'🥬', cost:6,  growTime:22, price:18, color:'#66BB6A'},
+};
+
+// ═══════════════════════════════════════════════════════════
+// SPRITE LOADER
+// ═══════════════════════════════════════════════════════════
+const sprites = {};
+function loadSprites() {
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width; canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    const all = JSON.parse(SPRITE_DATA);
+    for (const [cat, items] of Object.entries(all)) {
+      sprites[cat] = {};
+      for (const [name, src] of Object.entries(items)) {
+        const i = new Image();
+        i.src = src;
+        sprites[cat][name] = i;
+      }
+    }
+    console.log('Sprites loaded:', Object.keys(sprites));
+  };
+  img.src = 'data:text/plain,placeholder';
+}
+
+// Parse embedded sprite data
+const _spriteRaw = SPRITE_DATA_JSON;
+const _loadedSprites = {};
+for (const [cat, items] of Object.entries(_spriteRaw)) {
+  _loadedSprites[cat] = {};
+  for (const [name, src] of Object.entries(items)) {
+    const i = new Image();
+    i.src = src;
+    _loadedSprites[cat][name] = i;
+  }
+}
+const loadedSprites = _loadedSprites;
+
+function sp(cat, name) {
+  const s = loadedSprites[cat]?.[name];
+  return s || null;
+}
+
+// ═══════════════════════════════════════════════════════════
+// WORLD TILES
+// ═══════════════════════════════════════════════════════════
+const T = { GRASS:0, SOIL:1, PATH:2, WATER:3, BUNGALOW:4, SHED:5, WELL:6, TREE:7, COCONUT:8 };
+const world = [];
+
+// Initialize world with grass
+for (let y=0; y<WORLD_H; y++) {
+  world[y] = [];
+  for (let x=0; x<WORLD_W; x++) world[y][x] = { tile:T.GRASS };
+}
+
+// Build a Karjat-style farm layout
+function initFarm() {
+  // Paths
+  const pathTiles = [
+    // Main vertical path
+    ...Array.from({length:30},(_,i)=>({x:15,y:i})),
+    // Horizontal paths
+    ...Array.from({length:20},(_,i)=>({x:i,y:8})),
+    ...Array.from({length:20},(_,i)=>({x:i,y:22})),
+    ...Array.from({length:15},(_,i)=>({x:i,y:15})),
+    // Border paths
+    ...Array.from({length:40},(_,i)=>({x:0,y:i})),
+    ...Array.from({length:20},(_,i)=>({x:i,y:0})),
+  ];
+  pathTiles.forEach(p => { if(world[p.y]?.[p.x]) world[p.y][p.x] = {tile:T.PATH}; });
+
+  // Crop fields (soil patches)
+  const fieldAreas = [
+    {x:16,y:1,w:20,h:7},   // Methi field (top)
+    {x:16,y:9,w:20,h:6},  // Lal Saag field
+    {x:16,y:16,w:20,h:6}, // Mula/Palak field
+    {x:1,y:23,w:14,h:7},  // Extra crop area
+  ];
+  fieldAreas.forEach(a => {
+    for (let y=a.y; y<a.y+a.h; y++)
+      for (let x=a.x; x<a.x+a.w; x++)
+        if(world[y]?.[x]) world[y][x] = {tile:T.SOIL};
+  });
+
+  // Buildings
+  // Bungalow (center-ish)
+  const bHouse = {x:1,y:1,w:14,h:10};
+  for (let y=bHouse.y; y<bHouse.y+bHouse.h; y++)
+    for (let x=bHouse.x; x<bHouse.x+bHouse.w; x++)
+      if(world[y]?.[x]) world[y][x] = {tile:T.BUNGALOW};
+
+  // Animal shed
+  const shed = {x:1,y:12,w:13,h:8};
+  for (let y=shed.y; y<shed.y+shed.h; y++)
+    for (let x=shed.x; x<shed.x+shed.w; x++)
+      if(world[y]?.[x]) world[y][x] = {tile:T.SHED};
+
+  // Well
+  if(world[16]?.[22]) world[16][22] = {tile:T.WELL};
+  if(world[16]?.[23]) world[16][23] = {tile:T.WATER};
+  if(world[17]?.[22]) world[17][22] = {tile:T.WATER};
+  if(world[17]?.[23]) world[17][23] = {tile:T.WATER};
+
+  // Trees around perimeter
+  const treePositions = [];
+  for (let x=40; x<58; x++) {
+    if(world[1]?.[x]) {world[1][x] = {tile:T.TREE}; treePositions.push({x,y:1});}
+    if(world[20]?.[x]) {world[20][x] = {tile:T.COCONUT}; treePositions.push({x,y:20});}
+    if(world[30]?.[x]) {world[30][x] = {tile:T.COCONUT}; treePositions.push({x,y:30});}
+  }
+  for (let y=1; y<10; y++) {
+    if(world[y]?.[58]) {world[y][58] = {tile:T.TREE}; treePositions.push({x:58,y});}
+    if(world[y]?.[59]) {world[y][59] = {tile:T.COCONUT}; treePositions.push({x:59,y});}
+  }
+  for (let y=25; y<40; y++) {
+    if(world[y]?.[58]) {world[y][58] = {tile:T.TREE};}
+    if(world[y]?.[59]) {world[y][59] = {tile:T.COCONUT};}
+  }
+
+  // NPC spawn position (on path)
+  npc.x = 15 * TILE; npc.y = 14 * TILE;
+}
+
+// ═══════════════════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════════════════
+const state = {
+  money: 100,
+  day: 1,
+  harvested: 0,
+  selectedTool: 'plant',
+  selectedCrop: null,
+  inventory: { methi: 0, lalsaag: 0, mula: 0, palak: 0 },
+  plots: [], // {x,y,crop,plantedAt,growthStage,watered}
+};
+
+// Initialize plots for each soil tile
+for (let y=0; y<WORLD_H; y++) {
+  for (let x=0; x<WORLD_W; x++) {
+    if(world[y][x].tile === T.SOIL) {
+      state.plots.push({x,y,crop:null,plantedAt:null,growthStage:0,watered:false});
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PLAYER
+// ═══════════════════════════════════════════════════════════
+const player = {
+  x: 16 * TILE, y: 15 * TILE,
+  w: 14, h: 14,
+  speed: 80, // pixels per second
+  facing: 'down',
+  frame: 0, frameTimer: 0,
+  moving: false,
+  vx: 0, vy: 0,
+};
+
+// ═══════════════════════════════════════════════════════════
+// NPC
+// ═══════════════════════════════════════════════════════════
+const npc = {
+  x: 16*TILE, y: 14*TILE,
+  w: 14, h: 14,
+  speed: 30,
+  path: [], pathIndex: 0, pathWait: 0,
+  facing: 'down', frame: 0, frameTimer: 0,
+  dialogue: ['Welcome to your farm!', 'The soil here is rich.', 'Good luck with the harvest!'],
+  dialogueIndex: 0,
+};
+
+// NPC patrol path (tile coordinates)
+const npcPath = [
+  {x:15,y:10},{x:15,y:11},{x:15,y:12},{x:15,y:13},{x:15,y:14},{x:15,y:15},
+  {x:14,y:15},{x:13,y:15},{x:12,y:15},{x:11,y:15},{x:10,y:15},{x:9,y:15},
+  {x:9,y:14},{x:9,y:13},{x:9,y:12},{x:9,y:11},{x:9,y:10},
+  {x:10,y:10},{x:11,y:10},{x:12,y:10},{x:13,y:10},{x:14,y:10},
+];
+
+// ═══════════════════════════════════════════════════════════
+// CAMERA
+// ═══════════════════════════════════════════════════════════
+const camera = { x: 0, y: 0 };
+function updateCamera() {
+  const canvas = document.getElementById('game-canvas');
+  const halfW = canvas.width / 2;
+  const halfH = canvas.height / 2;
+  camera.x = Math.max(0, Math.min(player.x - halfW + player.w/2, WORLD_W*TILE - canvas.width));
+  camera.y = Math.max(0, Math.min(player.y - halfH + player.h/2, WORLD_H*TILE - canvas.height));
+}
+
+// ═══════════════════════════════════════════════════════════
+// INPUT
+// ═══════════════════════════════════════════════════════════
+const keys = {};
+window.addEventListener('keydown', e => { keys[e.key] = true; e.preventDefault(); });
+window.addEventListener('keyup',   e => { keys[e.key] = false; });
+
+// Touch/click controls
+let touchStartX = 0, touchStartY = 0;
+document.getElementById('game-canvas').addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+});
+document.getElementById('game-canvas').addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+    handleCanvasClick(touchStartX, touchStartY);
+  }
+});
+document.getElementById('game-canvas').addEventListener('click', e => {
+  handleCanvasClick(e.clientX, e.clientY);
+});
+
+// ═══════════════════════════════════════════════════════════
+// TOOLBAR
+// ═══════════════════════════════════════════════════════════
+document.querySelectorAll('.tool-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.selectedTool = btn.dataset.tool;
+    const panel = document.getElementById('seed-panel');
+    panel.classList.toggle('open', state.selectedTool === 'plant');
+    document.getElementById('inventory-overlay').classList.remove('open');
+    document.getElementById('interact-prompt').style.display = 'none';
+  });
+});
+
+// Seed cards
+document.querySelectorAll('.seed-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.seed-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    state.selectedCrop = card.dataset.crop;
+  });
+});
+
+// ═══════════════════════════════════════════════════════════
+// CANVAS CLICK HANDLER
+// ═══════════════════════════════════════════════════════════
+function handleCanvasClick(screenX, screenY) {
+  const canvas = document.getElementById('game-canvas');
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const worldX = (screenX - rect.left) * scaleX + camera.x;
+  const worldY = (screenY - rect.top) * scaleY + camera.y;
+  const tileX = Math.floor(worldX / TILE);
+  const tileY = Math.floor(worldY / TILE);
+
+  if (state.selectedTool === 'plant') {
+    const plot = state.plots.find(p => p.x === tileX && p.y === tileY);
+    if (plot && !plot.crop && state.selectedCrop) {
+      const cropData = CROPS[state.selectedCrop];
+      if (state.money >= cropData.cost) {
+        state.money -= cropData.cost;
+        plot.crop = state.selectedCrop;
+        plot.plantedAt = Date.now();
+        plot.growthStage = 1;
+        updateHUD();
+        notify(`Planted ${cropData.emoji} ${cropData.name}!`);
+      } else {
+        notify('Not enough Bushels!');
+      }
+    }
+  } else if (state.selectedTool === 'harvest') {
+    const plot = state.plots.find(p => p.x === tileX && p.y === tileY);
+    if (plot && plot.crop) {
+      const elapsed = (Date.now() - plot.plantedAt) / 60000; // minutes
+      const growTime = CROPS[plot.crop].growTime;
+      if (elapsed >= growTime) {
+        state.inventory[plot.crop]++;
+        state.harvested++;
+        notify(`Harvested ${CROPS[plot.crop].emoji} ${CROPS[plot.crop].name}!`);
+        plot.crop = null; plot.plantedAt = null; plot.growthStage = 0;
+        updateHUD();
+      } else {
+        notify('Not ready yet!');
+      }
+    }
+  } else if (state.selectedTool === 'water') {
+    const plot = state.plots.find(p => p.x === tileX && p.y === tileY);
+    if (plot && plot.crop) {
+      plot.watered = true;
+      notify('💧 Watered!');
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// NPC LOGIC
+// ═══════════════════════════════════════════════════════════
+function updateNPC(dt) {
+  if (npc.pathWait > 0) { npc.pathWait -= dt; return; }
+  if (npc.pathIndex >= npcPath.length) npc.pathIndex = 0;
+  const target = npcPath[npc.pathIndex];
+  const tx = target.x * TILE, ty = target.y * TILE;
+  const dx = tx - npc.x, dy = ty - npc.y;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  if (dist < 2) {
+    npc.pathIndex++;
+    npc.pathWait = 2; // pause at waypoints
+  } else {
+    const nx = dx/dist, ny = dy/dist;
+    npc.x += nx * npc.speed * dt;
+    npc.y += ny * npc.speed * dt;
+    npc.facing = Math.abs(ny) > Math.abs(nx) ? (ny > 0 ? 'down' : 'up') : (nx > 0 ? 'right' : 'left');
+    npc.frameTimer += dt;
+    if (npc.frameTimer > 0.3) { npc.frame = (npc.frame + 1) % 2; npc.frameTimer = 0; }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PLAYER UPDATE
+// ═══════════════════════════════════════════════════════════
+function updatePlayer(dt) {
+  let dx = 0, dy = 0;
+  if (keys['ArrowLeft']  || keys['a'] || keys['A']) dx -= 1;
+  if (keys['ArrowRight'] || keys['d'] || keys['D']) dx += 1;
+  if (keys['ArrowUp']    || keys['w'] || keys['W']) dy -= 1;
+  if (keys['ArrowDown']  || keys['s'] || keys['S']) dy += 1;
+
+  if (dx !== 0 && dy !== 0) { dx *= 0.707; dy *= 0.707; }
+
+  player.moving = dx !== 0 || dy !== 0;
+  if (player.moving) {
+    const nx = player.x + dx * player.speed * dt;
+    const ny = player.y + dy * player.speed * dt;
+    if (!isBlocked(nx, player.y)) player.x = nx;
+    if (!isBlocked(player.x, ny)) player.y = ny;
+    player.facing = Math.abs(dy) > Math.abs(dx) ? (dy > 0 ? 'down' : 'up') : (dx > 0 ? 'right' : 'left');
+    player.frameTimer += dt;
+    if (player.frameTimer > 0.18) { player.frame = (player.frame + 1) % 2; player.frameTimer = 0; }
+  }
+}
+
+function isBlocked(x, y) {
+  const pad = 4;
+  const corners = [
+    {x: x+pad, y: y+pad},
+    {x: x+player.w-pad, y: y+pad},
+    {x: x+pad, y: y+player.h-pad},
+    {x: x+player.w-pad, y: y+player.h-pad},
+  ];
+  for (const c of corners) {
+    const tx = Math.floor(c.x / TILE), ty = Math.floor(c.y / TILE);
+    if (ty < 0 || ty >= WORLD_H || tx < 0 || tx >= WORLD_W) return true;
+    const t = world[ty]?.[tx]?.tile;
+    if (t === T.BUNGALOW || t === T.SHED || t === T.TREE || t === T.COCONUT || t === T.WATER) return true;
+  }
+  return false;
+}
+
+// ═══════════════════════════════════════════════════════════
+// TIME SYSTEM (Real Karjat time)
+// ═══════════════════════════════════════════════════════════
+function getKarjatTime() {
+  // Asia/Kolkata offset from UTC
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  const kartajatOffset = 5.5 * 3600000;
+  return new Date(utc + kartajatOffset);
+}
+
+function updateTimeDisplay() {
+  const kt = getKarjatTime();
+  const hours = kt.getHours(), mins = kt.getMinutes();
+  const timeStr = `${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}`;
+  document.getElementById('time-clock').textContent = timeStr;
+  
+  let phase = 'Dawn';
+  if (hours >= 5 && hours < 10) phase = 'Morning';
+  else if (hours >= 10 && hours < 14) phase = 'Midday';
+  else if (hours >= 14 && hours < 17) phase = 'Afternoon';
+  else if (hours >= 17 && hours < 19) phase = 'Evening';
+  else if (hours >= 19 && hours < 22) phase = 'Dusk';
+  else phase = 'Night';
+  
+  document.getElementById('time-phase').textContent = phase;
+  return hours;
+}
+
+// ═══════════════════════════════════════════════════════════
+// SKY COLORS BY TIME
+// ═══════════════════════════════════════════════════════════
+function getSkyColor(hours) {
+  if (hours >= 5 && hours < 7)  return {r:255,g:180,b:120};  // Dawn
+  if (hours >= 7 && hours < 10) return {r:135,g:206,b:235};  // Morning
+  if (hours >= 10 && hours < 17) return {r:87,g:166,b:255}; // Day
+  if (hours >= 17 && hours < 19) return {r:255,g:140,b:80};  // Evening
+  if (hours >= 19 && hours < 22) return {r:30,g:30,b:80};    // Dusk
+  return {r:10,g:10,b:40};                                    // Night
+}
+
+// ═══════════════════════════════════════════════════════════
+// HUD UPDATE
+// ═══════════════════════════════════════════════════════════
+function updateHUD() {
+  document.getElementById('hud-money').textContent = `🌾 ${state.money}`;
+  document.getElementById('hud-harvested').textContent = state.harvested;
+  document.getElementById('hud-day').textContent = state.day;
+  
+  // Inventory
+  const container = document.getElementById('inventory-items');
+  container.innerHTML = '';
+  const hasCrops = Object.values(state.inventory).some(v => v > 0);
+  if (!hasCrops) container.innerHTML = '<div class="inv-empty">No crops harvested yet.</div>';
+  Object.entries(state.inventory).forEach(([key, count]) => {
+    if (count === 0) return;
+    const c = CROPS[key];
+    const div = document.createElement('div');
+    div.className = 'inv-item';
+    div.innerHTML = `
+      <span class="inv-crop">${c.emoji} ${c.name}</span>
+      <span class="inv-count">x${count}</span>
+      <button class="inv-sell" data-crop="${key}">Sell ${c.price}🪙</button>
+    `;
+    container.appendChild(div);
+  });
+  container.querySelectorAll('.inv-sell').forEach(btn => {
+    btn.addEventListener('click', () => sellCrop(btn.dataset.crop));
+  });
+}
+
+function sellCrop(key) {
+  const c = CROPS[key];
+  const count = state.inventory[key];
+  if (count === 0) return;
+  const earned = count * c.price;
+  state.money += earned;
+  state.inventory[key] = 0;
+  updateHUD();
+  notify(`Sold x${count} ${c.emoji} for ${earned} Bushels!`);
+}
+
+function notify(msg) {
+  const el = document.getElementById('notification');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const d = document.getElementById('game-container');
+  canvas.width = d.clientWidth;
+  canvas.height = d.clientHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// Sprite cache
+const spriteCache = {};
+function getSprite(cat, name) {
+  if (!spriteCache[`${cat}/${name}`]) {
+    const src = _loadedSprites[cat]?.[name]?.src;
+    if (!src) return null;
+    spriteCache[`${cat}/${name}`] = { src };
+  }
+  const key = `${cat}/${name}`;
+  if (!spriteCache[key].img) {
+    if (!spriteCache[key].loading) {
+      const img = new Image();
+      img.src = spriteCache[key].src;
+      spriteCache[key].loading = true;
+      img.onload = () => { spriteCache[key].img = img; };
+    }
+    return null;
+  }
+  return spriteCache[key].img;
+}
+
+function drawSprite(cat, name, sx, sy, sw=16, sh=16) {
+  const src = _loadedSprites[cat]?.[name]?.src;
+  if (!src) {
+    // Fallback: draw colored rect
+    ctx.fillStyle = '#888';
+    ctx.fillRect(sx, sy, sw, sh);
+    return;
+  }
+  const key = `${cat}/${name}`;
+  if (!spriteCache[key]) {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => { spriteCache[key] = { img }; };
+    return;
+  }
+  const img = spriteCache[key]?.img;
+  if (img) ctx.drawImage(img, sx, sy, sw, sh);
+}
+
+function render(hours) {
+  const sky = getSkyColor(hours);
+  ctx.fillStyle = `rgb(${sky.r},${sky.g},${sky.b})`;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const offX = -camera.x, offY = -camera.y;
+
+  // Draw world tiles
+  const startTileX = Math.max(0, Math.floor(camera.x / TILE) - 1);
+  const startTileY = Math.max(0, Math.floor(camera.y / TILE) - 1);
+  const endTileX = Math.min(WORLD_W, Math.ceil((camera.x + canvas.width) / TILE) + 1);
+  const endTileY = Math.min(WORLD_H, Math.ceil((camera.y + canvas.height) / TILE) + 1);
+
+  for (let y = startTileY; y < endTileY; y++) {
+    for (let x = startTileX; x < endTileX; x++) {
+      const t = world[y]?.[x]?.tile ?? T.GRASS;
+      let sx = x * TILE + offX, sy = y * TILE + offY;
+
+      // Base tile
+      switch(t) {
+        case T.GRASS: drawSprite('environment','grass',sx,sy,TILE,TILE); break;
+        case T.SOIL:  drawSprite('environment','soil',sx,sy,TILE,TILE); break;
+        case T.PATH:  drawSprite('environment','path',sx,sy,TILE,TILE); break;
+        case T.WATER: drawSprite('environment','well',sx,sy,TILE,TILE); break;
+        case T.BUNGALOW: drawSprite('buildings','bungalow',sx,sy,TILE,TILE); break;
+        case T.SHED:  drawSprite('buildings','shed',sx,sy,TILE,TILE); break;
+        case T.WELL:  drawSprite('environment','well',sx,sy,TILE,TILE); break;
+        case T.TREE:  drawSprite('environment','palm',sx,sy,TILE,TILE); break;
+        case T.COCONUT: drawSprite('environment','coconut',sx,sy,TILE,TILE); break;
+        default: ctx.fillStyle='#4CAF50'; ctx.fillRect(sx,sy,TILE,TILE);
+      }
+    }
+  }
+
+  // Draw plots with crops (sorted by Y for depth)
+  const sortedPlots = [...state.plots].filter(p => p.crop).sort((a,b) => a.y - b.y);
+  for (const plot of sortedPlots) {
+    if (!plot.crop) continue;
+    const crop = CROPS[plot.crop];
+    const elapsed = (Date.now() - plot.plantedAt) / 60000;
+    const growTime = crop.growTime;
+    const progress = Math.min(elapsed / growTime, 1);
+    const stage = progress < 0.33 ? 1 : progress < 0.66 ? 2 : progress < 1 ? 3 : 4;
+    const sx = plot.x * TILE + offX, sy = plot.y * TILE + offY;
+    drawSprite('crops', `${plot.crop}_${stage}`, sx, sy, TILE, TILE);
+    
+    // Progress bar
+    if (progress < 1) {
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(sx+1, sy+TILE-4, TILE-2, 3);
+      ctx.fillStyle = progress < 0.5 ? '#FFC107' : '#4CAF50';
+      ctx.fillRect(sx+1, sy+TILE-4, (TILE-2)*progress, 3);
+    } else {
+      // Ready to harvest — pulsing border
+      const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 300);
+      ctx.strokeStyle = `rgba(255,255,255,${pulse * 0.7})`;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(sx, sy, TILE-1, TILE-1);
+    }
+  }
+
+  // Sort entities by Y for depth
+  const entities = [
+    {type:'player', y:player.y + player.h},
+    {type:'npc',    y:npc.y + npc.h},
+  ].sort((a,b) => a.y - b.y);
+
+  for (const entity of entities) {
+    if (entity.type === 'player') {
+      const sx = player.x + offX, sy = player.y + offY;
+      const key = `player_${player.facing}_${player.frame + 1}`;
+      drawSprite('player', key, sx, sy, player.w, player.h);
+    }
+    if (entity.type === 'npc') {
+      const sx = npc.x + offX, sy = npc.y + offY;
+      const key = `elder_${npc.facing}_${npc.frame + 1}`;
+      drawSprite('npcs', key, sx, sy, npc.w, npc.h);
+    }
+  }
+
+  // Interaction prompt
+  const nearbyPlot = state.plots.find(p => {
+    const dx = p.x*TILE - player.x, dy = p.y*TILE - player.y;
+    return Math.sqrt(dx*dx+dy*dy) < TILE*1.5;
+  });
+  const prompt = document.getElementById('interact-prompt');
+  if (nearbyPlot && nearbyPlot.crop && state.selectedTool === 'harvest') {
+    const elapsed = (Date.now() - nearbyPlot.plantedAt) / 60000;
+    const growTime = CROPS[nearbyPlot.crop].growTime;
+    if (elapsed >= growTime) {
+      prompt.textContent = `Tap to harvest ${CROPS[nearbyPlot.crop].name}`;
+      prompt.style.display = 'block';
+    }
+  } else if (nearbyPlot && !nearbyPlot.crop && state.selectedTool === 'plant') {
+    prompt.textContent = `Tap to plant ${state.selectedCrop ? CROPS[state.selectedCrop].name : ''}`;
+    prompt.style.display = 'block';
+  } else {
+    prompt.style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// MAIN LOOP
+// ═══════════════════════════════════════════════════════════
+let lastTime = 0;
+let timeUpdateTimer = 0;
+let currentHour = 0;
+
+function gameLoop(timestamp) {
+  const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
+  lastTime = timestamp;
+
+  updatePlayer(dt);
+  updateNPC(dt);
+  updateCamera();
+
+  timeUpdateTimer += dt;
+  if (timeUpdateTimer > 10) {
+    currentHour = updateTimeDisplay();
+    timeUpdateTimer = 0;
+    updateHUD();
+  }
+
+  render(currentHour);
+  requestAnimationFrame(gameLoop);
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+initFarm();
+updateTimeDisplay();
+updateHUD();
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>
