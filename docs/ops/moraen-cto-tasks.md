@@ -2,6 +2,7 @@
 
 **Bot:** Telegram `@moraen_cto_bot` (Hermes profile `~/.hermes/profiles/cto/` on Mac Mini)  
 **Cost:** Free — uses Hermes gateway + free-tier model routing  
+**Models:** [moraen-model-routing.md](moraen-model-routing.md) — deepseek-v4-flash primary, not MiniMax M2.7  
 **Workflow:** [dev-workflow.md](../tech/dev-workflow.md) · **Queue:** [coordination.md](../coordination.md)
 
 ---
