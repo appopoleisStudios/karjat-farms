@@ -184,14 +184,14 @@ gh pr create --title "..." --body "..."
 ### Nightly use
 
 ```text
+/reset
 GroundWork overnight — karjat-farms
-Branch: docs/phase0-p0
-Goals: [numbered list from HANDOFF-MORAEN.md]
-Read: docs/HANDOFF-MORAEN.md
-Do NOT: merge to main, start Unity
+...
 ```
 
-See full templates: [ops/moraen-cto-tasks.md](../ops/moraen-cto-tasks.md)
+Send `/reset` first — avoids MiniMax M2.7-style timeouts on poisoned 80k-token sessions.
+
+Model routing for GroundWork: [ops/moraen-model-routing.md](../ops/moraen-model-routing.md)
 
 ### What Moraen bot owns for GroundWork
 
@@ -388,6 +388,7 @@ Linux laptop SSH setup remains useful as a **backup access path**, not the prima
 - Master plan: `/home/moraen/.cursor/plans/groundwork_game_plan_e9f1bee0.plan.md`
 - Phase 0 tasks: [HANDOFF-MORAEN.md](../HANDOFF-MORAEN.md)
 - Moraen bot tasks: [ops/moraen-cto-tasks.md](../ops/moraen-cto-tasks.md)
+- **Moraen models:** [ops/moraen-model-routing.md](../ops/moraen-model-routing.md)
 - Agent queue: [coordination.md](../coordination.md)
 - Repo layout: [repo-structure.md](repo-structure.md)
 - Architecture: [architecture.md](architecture.md)

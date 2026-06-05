@@ -80,7 +80,9 @@ Goals (in order):
 5. Commit + push + open PR titled "docs: Phase 0 time-system, region bible, crop data"
 6. Telegram report: files changed, open questions, PR link
 
-Read first: docs/HANDOFF-MORAEN.md, docs/tech/dev-workflow.md
+Read first: docs/HANDOFF-MORAEN.md, docs/ops/moraen-cto-tasks.md
+Session: send /reset to @moraen_cto_bot before this goal (fresh context)
+Models: primary deepseek-v4-flash; delegate JSON to qwen3-next-80b:free; GDD/arch via NIM glm-5.1 if stuck
 Do NOT: merge to main, start Unity, touch secrets
 ```
 
