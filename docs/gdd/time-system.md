@@ -39,20 +39,25 @@ Phase boundaries are **game-time**, displayed in IST for player familiarity.
 
 ## 3. Seasonal Calendar
 
-| Season | Real-world window | Game-year days | Crop gates |
-|---|---|---|---|
-| Kharif | Jun 15–Oct 31 | Days 1–48 | lalsaag, paddy, nachni |
-| Rabi | Nov 1–Mar 15 | Days 49–78 | methi, mula |
-| Zaid | Mar 16–Jun 14 | Days 79–90 | palak (year-round), summer fallow |
+> **Caveat (SA advisory):** The 90-day game-year **compresses** Maharashtra seasons for pacing. It is not a literal ag almanac. Marketing must not claim day-perfect Konkan calendar accuracy — say “inspired by Karjat Kharif/Rabi/Zaid rhythms.”
+
+| Season | Real-world reference (Raigad) | Game-year days | Share | Crop gates |
+|---|---|---|---|---|
+| Kharif | Monsoon sowing ~Jun–Sep (Konkan retreat ~Oct) | Days **1–40** | 44% | lalsaag, paddy, nachni |
+| Rabi | Post-monsoon Oct–Mar | Days **41–75** | 39% | methi, mula |
+| Zaid | Short summer gap | Days **76–90** | 17% | palak (year-round), summer fallow |
+
+**Revision note (SA audit):** Prior draft (Kharif 48 / Rabi 30 days) overweighted Kharif vs Konkan monsoon end and underweighted Rabi — rebalanced above.
 
 **palak** is tagged `"season": "year-round"` in crops.json — always plantable.
 Planting a Kharif crop outside Kharif window → crop fails at harvest with "wrong season" message.
 Planting a Rabi crop during Kharif → system prevents planting (greyed-out in UI).
 
-### Kharif / Rabi derived from real-world Maharashtra agricultural calendar:
-- Kharif sowing: monsoon onset (~Jun 15 Karjat)
-- Rabi sowing: post-monsoon rabi cereals (Jun–Sep are too wet for wheat/methi)
-- Zaid: short summer window, limited crop selection
+### Real-world anchors (design reference only)
+
+- Kharif sowing: monsoon onset (~mid-Jun Karjat)
+- Rabi: primary cereal/veg window post-monsoon through winter
+- Zaid: limited summer crops between Rabi harvest and next Kharif
 
 ## 4. Crop Grow Times — **prototype vs target spec**
 
@@ -105,17 +110,19 @@ When we wire Farming Engine, choose one model:
 
 | Scenario | Resolution |
 |---|---|
-| Player offline 3+ real days | On return: fast-forward crops to completed state; no retroactive harvest income |
+| Player offline 3+ real days | **Phase 1:** fast-forward crops but **cap at 1 game-day of progress per real-day absent** (SA Q2 — limits exploit). **Phase 2:** server-authoritative sim replaces client cap |
 | Season transitions mid-grow | Crop completes normally; no penalty |
 | Plant Kharif crop on Rabi day | UI blocks planting (crop greyed out) |
 | New game-year rollover | Day counter resets to 1; season restarts Kharif; player inventory persists |
 | Device clock mismatch | Use server-authoritative time via Supabase; client clock is display-only |
 
-## 8. Open Questions (for SA / product review)
+## 8. Open questions — resolved / deferred (SA audit 2026-06-05)
 
-1. **growTime unit schism** — prototype uses real minutes; `crops.json` says game-minutes. Which is canonical for MVP?
-2. **Catch-up tick logic** (3+ real days offline): fast-forward to completed vs partial yield loss vs server sim — economy impact?
-3. **Paddy/nachni `growTime: null`** — block MVP or ship 6-crop with 4 playable + 2 locked?
-4. **Season day mapping** — Kharif “days 1–48” of 90: does this compress Maharashtra calendar believably for Indian players?
-5. **Day/night gameplay gates** (Phase 2): chicken feed, water evaporation — scope now or defer?
-6. **IST cosmetic clock vs authoritative game calendar** — can players be confused when real IST ≠ game season UI?
+| # | Topic | Owner | Status | Decision |
+|---|---|---|---|---|
+| Q1 | growTime unit schism | PM + trainee | **Deferred → Phase 1** | SA recommends **Model B** (game-calendar mapping). Prototype stays on real minutes until post-playtest confirms pacing; lock before `PlantData` authoring. |
+| Q2 | Offline catch-up exploit | PM | **Phase 1 mitigation** | Cap offline fast-forward at **1 game-day progress per real-day absent** (see §7). Full server sim deferred Phase 2 — not a merge blocker. |
+| Q3 | Paddy/nachni stubs | PM | **Accepted MVP scope** | Ship **4 playable + 2 teaser** for soft launch; paddy/nachni show **Coming Soon** in UI. Paid store listing requires all 6 playable — Phase 1 gate. |
+| Q4 | Season day mapping | PM | **Resolved in §3** | Rebalanced Kharif/Rabi/Zaid split + marketing caveat — gameplay compression, not literal almanac. |
+| Q5 | Day/night gameplay gates | PM | **Deferred Phase 2** | Visual only in MVP; chicken feed / evaporation out of scope. |
+| Q6 | IST clock vs game calendar | PM + UX | **Deferred Phase 1 UX** | Season banner + day counter are authoritative; IST sky is cosmetic — add onboarding tooltip in Unity UI pass. |

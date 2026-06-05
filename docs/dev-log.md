@@ -53,8 +53,14 @@ Three sentences per session. Feeds GTM authenticity story.
 ## 2026-06-05 — PM doc review (night 1)
 
 - Fixed time-system.md: game-year = 1800 real-min (not 90); prototype growTime = real minutes vs crops.json schism.
-- Fixed repo-structure VPS reference; added qa/pm-doc-review.md with SA devil's-adocate questions.
-- Opening PR #1 from moraen-Home for Claude SA audit.
+- Fixed repo-structure VPS reference; added qa/pm-doc-review.md with SA devil's-advocate questions.
+- Opened PR #1 from moraen-Home for Claude SA audit.
+
+## 2026-06-05 — SA audit response (PR #1)
+
+- Claude SA: request changes — 3 blockers, 4 advisories; recorded in docs/qa/sa-audit-night1.md.
+- PM fixed blockers: time-system §8 decisions table, repo-structure merge + machine roles, season calendar rebalanced.
+- Adopted SA guidance: offline catch-up cap, 4+2 crop teaser, ban yolo Hermes goals in model-routing §6b.
 
 ---
 

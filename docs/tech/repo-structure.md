@@ -127,8 +127,8 @@ __pycache__/
 ## 6. Branch Strategy
 
 ```
-main                        # Stable — Arsalan merges PRs here
-├── docs/phase0-p0          # Phase 0 documentation (Moraen, current)
+main                        # Stable — Claude SA merges PRs here after audit
+├── docs/phase0-p0          # Phase 0 documentation (Moraen writes; PM opens PR)
 ├── feature/phase1-*        # Phase 1 Unity integration
 ├── feature/phase2-*        # Phase 2 Supabase backend
 └── hotfix/*                # Emergency fixes
@@ -137,8 +137,8 @@ main                        # Stable — Arsalan merges PRs here
 **Rules:**
 - `main` is always deployable
 - Feature branches cut from `main`
-- PRs require one review before merge
-- `docs/phase0-p0` merges to `main` after SA audit (Claude) + trainee review
+- PRs require SA audit before merge (Phase 0+)
+- **`docs/phase0-p0` → `main`:** Cursor PM opens PR from **moraen-Home**; **Claude SA audits and merges** (2026-06-05 rule). Trainee answers product questions; does not merge by default.
 
 ---
 
@@ -146,13 +146,11 @@ main                        # Stable — Arsalan merges PRs here
 
 | Machine | Role | Connection |
 |---|---|---|
-| Mac Mini (Tailscale) | Primary: Unity Editor + Cursor | Tailscale SSH: `ssh appopoleis@100.127.150.60` |
-| moraen-Home (Tailscale) | Secondary: docs-only remote SSH | `ssh appopoleis@100.99.243.39` |
-| umar-asus (`100.79.34.78`) | Production web + future CI | Not for Unity Editor |
+| Mac Mini (`100.127.150.60`) | Primary: Unity Editor + Cursor interactive + Moraen Hermes | `ssh appopoleis@100.127.150.60` |
+| moraen-Home (`100.99.243.39`) | **Cursor PM seat:** doc review, `gh pr create`, Supabase MCP, planning | Local / Tailscale |
+| umar-asus (`100.79.34.78`) | Production web + future CI | Deploy target only |
 
-**Cursor Remote SSH for docs (Mac Mini → moraen-Home):**
-- Host configured in `.ssh/config` pointing to `100.99.243.39`
-- Read-only for docs — edits via PR workflow only
+**Alignment with [dev-workflow.md](dev-workflow.md):** Moraen bot commits on Mac Mini; **PM opens all PRs from moraen-Home**. moraen-Home is not a read-only mirror — it is the SDLC review + PR host.
 
 ---
 

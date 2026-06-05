@@ -85,12 +85,14 @@ sequenceDiagram
 
 ## Claude SA checklist (copy into PR review)
 
-- [ ] Every **Open Question** in time-system has owner + decision or explicit defer
-- [ ] growTime unit schism resolved or marked **BLOCKING Phase 1**
-- [ ] Season calendar defensible for Karjat / Raigad marketing claim
-- [ ] repo-structure machine roles match [dev-workflow.md](../tech/dev-workflow.md)
+- [x] Every **Open Question** in time-system has owner + decision or explicit defer (§8 table)
+- [x] growTime unit schism resolved as **defer Phase 1** with Model B target
+- [x] Season calendar rebalanced + caveat in time-system §3
+- [ ] repo-structure machine roles match dev-workflow.md — **PM fixed 2026-06-05**
 - [ ] No contradictions between HANDOFF acceptance table and doc status flags
-- [ ] ops/ model routing matches live Mac Mini config (no NIM Llama fallback)
+- [x] ops/ model routing matches live Mac Mini config (no NIM Llama fallback)
+
+**SA audit:** [sa-audit-night1.md](sa-audit-night1.md) — re-audit for merge.
 
 ---
 

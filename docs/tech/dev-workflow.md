@@ -18,7 +18,7 @@
 | Three agents | **You** (review/merge) · **Cursor** (interactive Unity MCP) · **Moraen bot** (async Telegram, free) |
 | GitHub is canonical | Machines are clones, not owners |
 | Unity MCP = interactive only | Cursor on Mac Mini talks to **local** Unity Editor |
-| Moraen bot = async labor | Docs, research, boilerplate, PRs — via Telegram overnight goals |
+| Moraen bot = async labor | Docs, research, boilerplate — **commit + push only**; PM opens PRs |
 | PR before main | No direct commits to `main` after Phase 0 |
 | Machines have roles | Mac = dev · Linux PC = prod web · Linux laptop = optional secondary |
 
@@ -62,7 +62,7 @@ flowchart TB
 | Machine | Tailscale IP | Role | Runs |
 |---|---|---|---|
 | **Mac Mini** | `100.127.150.60` | **Primary game dev** | Unity 2022.3 LTS, Cursor, Unity MCP, **Moraen CTO bot** (Hermes), Blender (later) |
-| **moraen-Home** | `100.99.243.39` | Secondary / agent host | Git clone, Cursor, Supabase MCP, planning |
+| **moraen-Home** | `100.99.243.39` | **Cursor PM seat** — doc review, `gh pr create`, Supabase MCP | Git clone, planning |
 | **umar-asus** | `100.79.34.78` | Production | HTML prototype via Cloudflare tunnel; future CI |
 
 **Why Unity on Mac Mini (not Linux laptop or Linux PC):**

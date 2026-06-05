@@ -208,6 +208,19 @@ Night 2: remaining docs in a **fresh `/reset` session**.
 
 ---
 
+## §6b — Overnight Telegram goals (enforce)
+
+Every goal PM sends to Moraen **must**:
+
+1. Start after `/reset` — never stack on standing/yolo goals
+2. Cap at **≤4 numbered deliverables** (files, commits, or research outputs)
+3. Include `Do NOT: gh pr create, merge main, standing goals, yolo goals`
+4. End with `On failure: partial commit + push + stop` — no infinite retry
+
+**Banned goal patterns:** "don't stop until…", "go yolo", "build Stardew…", open-ended standing goals.
+
+---
+
 ## §7 — Mandatory smoke test before any rail change
 
 Tracker item **H-032**. Run on Mac Mini:
@@ -243,6 +256,8 @@ hermes -p cto chat -Q --accept-hooks -q \
 | OR `deepseek-r1:free` as Moraen primary | Reasoning decode risk in Hermes |
 | OR `gemma-4-31b:free` as primary | Unverified tool loop; previous recommendation was premature |
 | Long sessions without `/reset` | M2.7 timeout ~84k tokens — operational, not model decode |
+| Open-ended / yolo / standing Hermes goals | Causes Telegram retry loops (2026-06-05 incident); **banned** |
+| Overnight goals without artifact cap | Max **4 deliverables** per session (docs/files/commits); split across nights |
 | `provider: custom` for build.nvidia.com | Use `provider: nvidia` — Hermes attaches NIM billing headers |
 
 ---
