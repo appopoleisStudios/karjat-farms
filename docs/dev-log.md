@@ -17,6 +17,12 @@ Three sentences per session. Feeds GTM authenticity story.
 - Phase 0: clone repo on Mac Mini, Cursor locally, PR to main. Phase 1: Unity 2022.3 + Funplay/Coplay MCP.
 - Retired SSH-to-Linux-laptop as primary workflow; kept as optional backup.
 
+## 2026-06-05 — Moraen CTO bot integrated
+
+- Added docs/ops/moraen-cto-tasks.md and docs/coordination.md.
+- Three-agent model: Moraen bot (free overnight docs/PRs), Cursor interactive (Unity MCP), Arsalan (review/merge).
+- Phase 0 docs assigned to Moraen bot via Telegram overnight goals — not manual writing by default.
+
 ---
 
 <!-- Template for future sessions:

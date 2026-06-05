@@ -4,9 +4,9 @@
 **Phase:** 0 — Foundation docs (Week 1)  
 **Owner:** Moraen  
 **Handoff:** [HANDOFF-MORAEN.md](HANDOFF-MORAEN.md)  
-**Workflow:** [tech/dev-workflow.md](tech/dev-workflow.md) — Mac Mini primary, GitHub SDLC, Unity MCP
-
----
+**Workflow:** [tech/dev-workflow.md](tech/dev-workflow.md) — Mac Mini primary, GitHub SDLC, Unity MCP  
+**Overnight labor:** [ops/moraen-cto-tasks.md](ops/moraen-cto-tasks.md) — Moraen CTO Telegram bot (free)  
+**Queue:** [coordination.md](coordination.md)
 
 ## Phase 0 P0 docs (Week 1 — blocking Unity start)
 

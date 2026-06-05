@@ -4,58 +4,60 @@
 **Primary machine:** Mac Mini (`arsalans-mac-mini`)  
 **Repo:** https://github.com/appopoleisStudios/karjat-farms  
 **Branch:** `docs/phase0-p0`  
-**Workflow:** [dev-workflow.md](tech/dev-workflow.md)  
-**Time budget:** ~10–20 hrs/week, Week 1  
-**Out of scope:** Unity install, Supabase, geo ingest, legal docs
+**Workflow:** [dev-workflow.md](tech/dev-workflow.md) · **Moraen bot:** [ops/moraen-cto-tasks.md](ops/moraen-cto-tasks.md)
 
 ---
 
 ## How we work (read this first)
 
-**Mac Mini is the primary dev machine.** Docs and code both live in git on GitHub — not on the Linux laptop.
+**Mac Mini is the primary dev machine.** Three agents share the work:
 
-| Phase | Where you work | Tooling |
-|---|---|---|
-| **Phase 0 (now)** | Mac Mini | Cursor locally, git PRs — no Unity yet |
-| **Phase 1+** | Mac Mini | Cursor + Unity 2022.3 + Unity MCP (Claude drives Editor) |
+| Agent | Role |
+|---|---|
+| **Moraen CTO bot** (Telegram `@moraen_cto_bot`) | **Free overnight labor** — writes docs, research, PRs |
+| **Cursor** (interactive on Mac Mini) | Unity MCP, complex debug, architecture with you |
+| **You (Arsalan)** | Set overnight goals, review PRs, merge `main`, playtest |
 
-You do **not** need SSH into the Linux laptop for normal work. Clone the repo on Mac Mini and open it in Cursor.
+**You do not need to write Phase 0 docs yourself.** Send Moraen bot an overnight Telegram goal; review the PR in the morning.
 
-Full workflow design: [docs/tech/dev-workflow.md](tech/dev-workflow.md)
+Full workflow: [docs/tech/dev-workflow.md](tech/dev-workflow.md)
 
 ---
 
-## Step 1 — Mac Mini one-time setup
+## Step 1 — Start Phase 0 (Arsalan sends Telegram goal)
+
+**Arsalan** sends this to `@moraen_cto_bot` (copy from [ops/moraen-cto-tasks.md](ops/moraen-cto-tasks.md)):
+
+```text
+GroundWork overnight — karjat-farms
+
+Repo: appopoleisStudios/karjat-farms
+Branch: docs/phase0-p0
+
+Goals (all 8 P0 docs — see HANDOFF acceptance table):
+1. docs/gdd/GDD.md
+2. docs/tech/architecture.md
+3. docs/tech/repo-structure.md
+4. docs/tech/farming-engine-audit.md
+5. docs/gdd/time-system.md
+6. docs/geo/karjat-region-bible.md
+7. docs/karjat-economy/crops.json + crops.md
+8. Update docs/README.md checkboxes
+
+Read: docs/HANDOFF-MORAEN.md
+Append docs/dev-log.md each session
+Open PR when done; Telegram report with link
+Do NOT: merge to main, start Unity
+```
+
+**Morning:** Review PR → merge to `main`.
+
+### Mac Mini one-time setup (if not done)
 
 ```bash
-# 1. Clone repo
-brew install git gh        # if missing
-gh auth login
 git clone https://github.com/appopoleisStudios/karjat-farms.git ~/projects/karjat-farms
-cd ~/projects/karjat-farms
-git checkout docs/phase0-p0
-
-# 2. Open in Cursor
-cursor ~/projects/karjat-farms
+# Ensure Hermes Moraen gateway running on Mac Mini
 ```
-
-If `docs/phase0-p0` is not on GitHub yet, ask Arsalan to run on the Linux laptop:
-
-```bash
-git push -u origin docs/phase0-p0
-```
-
-### Optional: SSH backup path to Linux laptop
-
-Only if you need files that aren't in git yet:
-
-```bash
-# After placing ~/.ssh/cursor_macmini_moraen_cto (chmod 600)
-bash scripts/moraen-mac-setup.sh
-ssh groundwork-linux
-```
-
-This is **not** the primary workflow. See [dev-workflow.md](tech/dev-workflow.md).
 
 ---
 
