@@ -2,7 +2,7 @@
 
 **Bot:** Telegram `@moraen_cto_bot` (Hermes profile `~/.hermes/profiles/cto/` on Mac Mini)  
 **Cost:** Free — uses Hermes gateway + free-tier model routing  
-**Models:** [moraen-model-routing.md](moraen-model-routing.md) — **OpenRouter free + NIM free + Linux PC Ollama only (no CrofAI)**  
+**Models:** [moraen-model-routing.md](moraen-model-routing.md) — **NIM M2.7 primary (Hermes-proven); OR/Ollama fallbacks after smoke test; no CrofAI**  
 **Workflow:** [dev-workflow.md](../tech/dev-workflow.md) · **Queue:** [coordination.md](../coordination.md)
 
 ---
@@ -82,8 +82,9 @@ Goals (in order):
 6. Telegram report: files changed, open questions, PR link
 
 Read first: docs/HANDOFF-MORAEN.md, docs/ops/moraen-cto-tasks.md
-Session: send /reset to @moraen_cto_bot before this goal (fresh context)
-Models (no CrofAI): OR gemma-4-31b-it:free primary; NIM llama-3.3-70b fallback; Ollama qwen2.5-coder:14b for JSON/code on Linux PC GPU
+Session: send /reset to @moraen_cto_bot before this goal (fresh context — avoids M2.7 timeout ~84k tokens)
+Models: NIM minimaxai/minimax-m2.7 primary (Hermes-native provider:nvidia); max 4 docs/session; retry on 429
+On timeout: partial commit + report; night 2 continues remainder. See docs/ops/moraen-model-routing.md
 Do NOT: merge to main, start Unity, touch secrets, use crof.ai
 ```
 

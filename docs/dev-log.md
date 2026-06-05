@@ -17,10 +17,12 @@ Three sentences per session. Feeds GTM authenticity story.
 - Phase 0: clone repo on Mac Mini, Cursor locally, PR to main. Phase 1: Unity 2022.3 + Funplay/Coplay MCP.
 - Retired SSH-to-Linux-laptop as primary workflow; kept as optional backup.
 
-## 2026-06-05 — Model routing constraint
+## 2026-06-05 — Model routing corrected (Hermes-aware)
 
-- No CrofAI. Moraen bot uses OpenRouter free, NVIDIA NIM free endpoints, and Ollama on Linux PC GPU (100.79.34.78) only.
-- Primary: OR gemma-4-31b-it:free; coding delegate: qwen3-next-80b:free + Ollama qwen2.5-coder:14b.
+- Previous OR gemma-4-31b primary was wrong — not smoke-tested with Hermes tool loop.
+- Keep NIM minimaxai/minimax-m2.7 as primary (Hermes provider:nvidia); decode works; timeout/429 fixed by /reset + split sessions + retry.
+- Fallbacks: OR minimax-m2.5:free, llama-3.3-70b:free, Ollama Linux PC only after 64k ctx + smoke test (H-032).
+- No CrofAI, no Groq.
 
 ## 2026-06-05 — Moraen CTO bot integrated
 

@@ -189,9 +189,9 @@ GroundWork overnight — karjat-farms
 ...
 ```
 
-Send `/reset` first — avoids MiniMax M2.7-style timeouts on poisoned 80k-token sessions.
+Send `/reset` first — avoids M2.7 timeout on long sessions (not a decode issue).
 
-Model routing (no CrofAI): [ops/moraen-model-routing.md](../ops/moraen-model-routing.md)
+Model routing (Hermes-native): [ops/moraen-model-routing.md](../ops/moraen-model-routing.md)
 
 ### What Moraen bot owns for GroundWork
 
