@@ -1,81 +1,138 @@
 # Moraen CTO Bot — Model Routing for GroundWork
 
 **Bot:** Telegram `@moraen_cto_bot` · Mac Mini Hermes `~/.hermes/profiles/cto/`  
-**Platform reference:** `ai-router/docs/moraen-model-optimisation-plan.md`  
-**Failure runbook:** `ai-router/docs/moraen-cto-provider-failure-runbook.md`
+**Constraint:** **No CrofAI.** Only free inference from:
+1. **NVIDIA NIM** (free hosted endpoints @ `integrate.api.nvidia.com`)
+2. **OpenRouter** (`:free` models)
+3. **Ollama on Linux PC GPU** (`100.79.34.78:11434` via Tailscale)
 
 ---
 
-## TL;DR — what to use (not MiniMax M2.7 as primary)
+## TL;DR — recommended stack (no CrofAI)
 
-| GroundWork task | Best model | Provider | Why |
+| Role | Model | Provider | Why |
 |---|---|---|---|
-| **Overnight doc sprints** (read plan + 8 files) | `deepseek-v4-flash` | CrofAI primary | **1M context**, cheap long outputs ($0.21/1M completion vs M2.7 $0.95) |
-| **JSON / crops / structured data** | `qwen/qwen3-next-80b-a3b-instruct:free` | OpenRouter (delegate) | Best free 80B coding/structure model |
-| **Simple Telegram acks** ("got it", status) | `glm-4.7-flash` or `qwen3.5-9b` | CrofAI free | Fast, $0, smart-routing tier |
-| **Hard docs** (GDD, architecture) | `z-ai/glm-5.1` | **NVIDIA NIM** | Best quality when prose must be right |
-| **PR review before you merge** | `deepseek/deepseek-r1:free` | OpenRouter | Reasoning chain for gaps/errors |
-| **Emergency / CrofAI 401** | `llama-3.3-70b-versatile` | Groq | Reliable fallback (see runbook) |
+| **Primary orchestrator** (overnight docs) | `google/gemma-4-31b-it:free` | OpenRouter | 262k ctx, strong prose, $0, no timeout issues like M2.7 on long threads |
+| **Hard docs** (GDD, architecture) | `meta/llama-3.3-70b-instruct` | NIM free endpoint | Better quality when OR rate-limits |
+| **JSON / code delegation** | `qwen/qwen3-next-80b-a3b-instruct:free` | OpenRouter | Best free 80B for structure + C# stubs |
+| **Local coding fallback** | `qwen2.5-coder:14b-instruct-q4_K_M` | Ollama @ Linux PC | Unlimited, no cloud rate limits |
+| **Simple Telegram acks** | `google/gemma-3-27b-it` | NIM free | Fast, cheap tier via smart routing |
+| **PR / spec review** | `deepseek/deepseek-r1:free` | OpenRouter | Reasoning before you merge |
+| **Emergency (OR + NIM throttled)** | `gemma4:e4b-it-q4_K_M` | Ollama @ Linux PC | Always on, $0 |
 
-**Demote `minimaxai/minimax-m2.7`:** keep as **short-task fallback only** (quick replies &lt;20 tool turns). It **times out at ~84k tokens** on long SDLC threads — bad for overnight GroundWork goals.
+**MiniMax M2.7 (NIM):** optional for **short** replies only (&lt;20 tool turns). **Not** primary — times out ~84k tokens on long SDLC sessions.
 
 ---
 
-## Recommended Moraen CTO stack for GroundWork
+## Provider topology
+
+```mermaid
+flowchart TB
+  subgraph mac [Mac Mini - Moraen CTO bot]
+    Hermes[Hermes gateway]
+  end
+
+  subgraph cloud [Free cloud APIs]
+    OR[OpenRouter :free models]
+    NIM[NVIDIA NIM free endpoints]
+  end
+
+  subgraph pc [Linux PC umar-asus GPU]
+    Ollama[Ollama :11434]
+  end
+
+  Hermes --> OR
+  Hermes --> NIM
+  Hermes -->|"Tailscale 100.79.34.78"| Ollama
+```
+
+| Provider | Base URL | Auth | Limits |
+|---|---|---|---|
+| OpenRouter | `https://openrouter.ai/api/v1` | `OPENROUTER_API_KEY` | Rate limits on `:free` models |
+| NVIDIA NIM | `https://integrate.api.nvidia.com/v1` | `NVIDIA_API_KEY` (nvapi-…) | ~40 req/min free tier; use free-endpoint models only |
+| Ollama (Linux PC) | `http://100.79.34.78:11434` | none (Tailscale LAN) | GPU-bound; unlimited requests |
+
+**Linux PC models (confirmed on umar-asus):**
+
+| Ollama model | Use |
+|---|---|
+| `qwen2.5-coder:14b-instruct-q4_K_M` | JSON, C#, SQL, boilerplate |
+| `gemma4:e4b-it-q4_K_M` | General overflow when cloud throttles |
+
+Ensure Ollama listens on Tailscale (`OLLAMA_HOST=0.0.0.0:11434` on Linux PC).
+
+---
+
+## Recommended `config.yaml` (Mac Mini — conceptual)
 
 ```yaml
-# ~/.hermes/profiles/cto/config.yaml — GroundWork-optimised (conceptual)
+# ~/.hermes/profiles/cto/config.yaml
+# NO crof.ai — GroundWork constraint
 
 model:
-  default: deepseek-v4-flash          # CrofAI — 1M ctx, doc sprints
-  provider: crofai
-  base_url: https://crof.ai/v1
+  default: google/gemma-4-31b-it:free
+  provider: openrouter
+  base_url: https://openrouter.ai/api/v1
   max_tokens: 8192
+  context_length: 262144
 
 fallback_model:
-  # Tier 1 — cheap premium overflow
-  - provider: crofai
-    model: gemma-4-31b-it
-
-  # Tier 2 — NVIDIA NIM quality (your NVAPI key)
-  - provider: nvidia
+  # Tier 1 — NIM free (when OpenRouter rate-limits)
+  - provider: custom
     base_url: https://integrate.api.nvidia.com/v1
-    model: z-ai/glm-5.1
+    model: meta/llama-3.3-70b-instruct
+    api_key: ENV_NVIDIA_API_KEY
 
-  # Tier 3 — free overflow
-  - provider: openrouter
-    model: google/gemma-4-31b-it:free
+  # Tier 2 — NIM Gemma (fast, free endpoint)
+  - provider: custom
+    base_url: https://integrate.api.nvidia.com/v1
+    model: google/gemma-3-27b-it
+    api_key: ENV_NVIDIA_API_KEY
 
-  # Tier 4 — permanent free
-  - provider: crofai
-    model: glm-4.7-flash
+  # Tier 3 — Local GPU (never rate-limited)
+  - provider: custom
+    base_url: http://100.79.34.78:11434/v1
+    model: gemma4:e4b-it-q4_K_M
 
-  # Tier 5 — Groq emergency (not M2.7 first)
-  - provider: groq
-    model: llama-3.3-70b-versatile
-
-  # Short replies only — last resort
-  - provider: nvidia
+  # Tier 4 — Short replies only (NOT overnight primary)
+  - provider: custom
+    base_url: https://integrate.api.nvidia.com/v1
     model: minimaxai/minimax-m2.7
+    api_key: ENV_NVIDIA_API_KEY
 
 smart_model_routing:
   enabled: true
   max_simple_chars: 400
   cheap_model:
-    model: glm-4.7-flash              # CrofAI free — "ok", "starting task"
-    provider: crofai
+    provider: custom
+    base_url: https://integrate.api.nvidia.com/v1
+    model: google/gemma-3-27b-it
+    api_key: ENV_NVIDIA_API_KEY
+    max_tokens: 1024
 
 compression:
-  summary_model: gemma-4-31b-it       # NOT minimax — cheaper summaries
+  summary_model: google/gemma-3-27b-it   # NIM — not M2.7
 
 delegation:
-  # Sub-agent for C#, JSON, boilerplate code in groundwork-unity/
+  # Sub-agent: JSON, C#, SQL
   model: qwen/qwen3-next-80b-a3b-instruct:free
   provider: openrouter
   max_iterations: 25
+  fallback_model:
+    provider: custom
+    base_url: http://100.79.34.78:11434/v1
+    model: qwen2.5-coder:14b-instruct-q4_K_M
 ```
 
-Apply changes on Mac Mini only with your approval. Script reference: `ai-router/hermes_config/tools/patch_cto_model_rails.py` (opt-in).
+Store keys in `~/.hermes/profiles/cto/.env` — never commit.
+
+```bash
+OPENROUTER_API_KEY=sk-or-...
+NVIDIA_API_KEY=nvapi-...
+# No CROFAI_API_KEY
+```
+
+Restart after edit: `launchctl kickstart -k gui/$(id -u)/ai.hermes.gateway-cto`
 
 ---
 
@@ -83,77 +140,88 @@ Apply changes on Mac Mini only with your approval. Script reference: `ai-router/
 
 ### Phase 0 — docs (now)
 
-| Doc / task | Model | Notes |
+| Task | Primary | Fallback |
 |---|---|---|
-| `time-system.md`, `repo-structure.md` | `deepseek-v4-flash` | Spec-following, tables |
-| `karjat-region-bible.md` + mandi research | `deepseek-v4-flash` | Long context for web research notes |
-| `GDD.md`, `architecture.md` | **NIM `glm-5.1`** | Highest prose quality; worth NIM cost |
-| `crops.json` fill | Delegate → `qwen3-next-80b:free` | Structured JSON |
-| `farming-engine-audit.md` | `gemma-4-31b-it` | Table-heavy, medium complexity |
-| Telegram "starting overnight" | `glm-4.7-flash` | Smart routing |
+| All P0 markdown docs | OR `gemma-4-31b-it:free` | NIM `llama-3.3-70b-instruct` → Ollama `gemma4` |
+| `GDD.md`, `architecture.md` (hard prose) | NIM `llama-3.3-70b-instruct` | OR `gemma-4-31b-it:free` |
+| `crops.json` structured fill | Delegate OR `qwen3-next-80b:free` | Ollama `qwen2.5-coder:14b` |
+| Mandi research notes | OR `gemma-4-31b-it:free` | NIM `llama-3.3-70b-instruct` |
+| Telegram status ping | NIM `gemma-3-27b-it` (smart routing) | — |
+| Pre-merge PR review | OR `deepseek-r1:free` | — |
 
-### Phase 1+ — Unity / game code
+### Phase 1+ — game code
 
-| Task | Model | Notes |
+| Task | Primary | Fallback |
 |---|---|---|
-| C# ScriptableObject stubs from `crops.json` | Delegate → `qwen3-next-80b:free` | Moraen orchestrates, junior-dev writes code |
-| `docs/economy/*.md` | `deepseek-v4-flash` | Long specs |
-| Supabase SQL draft | Delegate → `qwen3-next-80b:free` | |
-| Security-sensitive RLS review | `deepseek-r1:free` or NIM `glm-5.1` | Reasoning |
-| Unity scene work | **Not Moraen chat model** — Cursor + Unity MCP (you) | |
+| C# / ScriptableObject stubs | Delegate OR `qwen3-next-80b:free` | Ollama `qwen2.5-coder:14b` |
+| Economy / backend markdown | OR `gemma-4-31b-it:free` | NIM `llama-3.3-70b` |
+| Unity scenes / Play mode | **Cursor + Unity MCP (you)** — not chat model | — |
 
 ---
 
-## Session hygiene (avoid M2.7-style timeouts)
+## Why NOT MiniMax M2.7 as primary
 
-Before every **overnight GroundWork goal**:
-
-1. Send `/reset` to `@moraen_cto_bot` (fresh session — no 80k-token poison)
-2. One goal per session — all 8 P0 docs OK if using **deepseek-v4-flash** (1M ctx)
-3. Cap `max_turns: 40` — if hit, bot reports partial PR; you continue next night
-4. Bot appends `docs/dev-log.md` even on partial completion
+Your runbook (2026-06-04) shows M2.7 **timeout at ~84k–87k tokens** on long tool-heavy threads. Overnight GroundWork goals (8 docs + git + PR) exceed that. Use M2.7 on NIM only for quick Telegram acks.
 
 ---
 
-## Cost for GroundWork overnight work
+## Why OpenRouter Gemma 4 31B free as primary (not M2.7)
 
-| Provider | GroundWork usage | Est. cost |
-|---|---|---|
-| CrofAI Hobby ($5/mo) | ~5–15 req/night for docs | Included in 500/day budget |
-| OpenRouter free | Delegated coding/JSON | $0 |
-| NVIDIA NIM | 1–2 glm-5.1 calls/night for GDD/architecture only | ~$0.50–2/mo |
-| MiniMax M2.7 | Avoid as primary | Saves timeout + completion cost |
+| Model | Context | Long SDLC threads | Cost |
+|---|---|---|---|
+| OR `gemma-4-31b-it:free` | 262k | Stable | $0 |
+| NIM `minimax-m2.7` | 202k | **Timeouts** | Free tier credits |
+| Ollama `gemma4` | ~8k–32k effective | OK for single files | $0 |
 
-**Total GroundWork AI labor:** ~$5–7/mo on top of existing CrofAI hobby — mostly free if you use deepseek-v4-flash + OR free delegation.
-
----
-
-## What NOT to do
-
-| Bad choice | Why |
-|---|---|
-| MiniMax M2.7 as primary | Timeouts on long SDLC; expensive completions |
-| Same session for ComfyUI + GroundWork docs | Context pollution (see runbook 2026-06-04) |
-| qwen3.6-27b as fallback | HTTP 500 seen in production |
-| glm-4.7-flash when credits empty without fallback chain | 401 loops — keep Groq fallback |
+For multi-file doc sprints, **262k OpenRouter Gemma** beats local Ollama context. Use **Linux GPU Ollama** when cloud rate-limits hit.
 
 ---
 
-## Verify after config change
+## Session hygiene
+
+1. `/reset` before every overnight GroundWork goal
+2. One goal per session (all 8 P0 docs OK on 262k ctx)
+3. If OpenRouter returns 429 → auto-fallback to NIM, then Ollama
+4. Split across 2 nights if `max_turns: 40` hit
+
+---
+
+## Verify
 
 ```bash
-# Mac Mini
-tail -30 ~/.hermes/profiles/cto/logs/gateway.error.log
+# Mac Mini — cloud
+curl -s https://openrouter.ai/api/v1/models -H "Authorization: Bearer $OPENROUTER_API_KEY" | head
 
-# Telegram — after /reset
-"GroundWork test: reply with model name and OK"
-# Expect reply in <30s, not "model provider failed"
+# Mac Mini — Linux PC Ollama via Tailscale
+curl -s http://100.79.34.78:11434/api/tags
+
+# Logs
+tail -30 ~/.hermes/profiles/cto/logs/gateway.error.log
 ```
+
+Telegram test after `/reset`:
+
+```text
+GroundWork model test: reply with which provider answered (OR/NIM/Ollama)
+```
+
+---
+
+## Cost
+
+| Source | GroundWork overnight | Monthly |
+|---|---|---|
+| OpenRouter `:free` | Primary | $0 |
+| NVIDIA NIM free endpoints | Fallback + smart routing | $0 (rate-limited) |
+| Ollama Linux PC GPU | Overflow + coding delegate | $0 (your electricity) |
+| CrofAI | **Not used** | $0 |
 
 ---
 
 ## References
 
-- Full stack plan: `ai-router/ai-router/docs/moraen-model-optimisation-plan.md`
+- NIM free catalog: [build.nvidia.com/models](https://build.nvidia.com/models) — filter **Free Endpoint**
+- OpenRouter free: models ending in `:free`
+- Linux PC Ollama: `arsalan@100.79.34.78` (Tailscale)
 - GroundWork tasks: [moraen-cto-tasks.md](moraen-cto-tasks.md)
-- Dev workflow: [../tech/dev-workflow.md](../tech/dev-workflow.md)
+- Failure runbook: `ai-router/docs/moraen-cto-provider-failure-runbook.md`

@@ -17,6 +17,11 @@ Three sentences per session. Feeds GTM authenticity story.
 - Phase 0: clone repo on Mac Mini, Cursor locally, PR to main. Phase 1: Unity 2022.3 + Funplay/Coplay MCP.
 - Retired SSH-to-Linux-laptop as primary workflow; kept as optional backup.
 
+## 2026-06-05 — Model routing constraint
+
+- No CrofAI. Moraen bot uses OpenRouter free, NVIDIA NIM free endpoints, and Ollama on Linux PC GPU (100.79.34.78) only.
+- Primary: OR gemma-4-31b-it:free; coding delegate: qwen3-next-80b:free + Ollama qwen2.5-coder:14b.
+
 ## 2026-06-05 — Moraen CTO bot integrated
 
 - Added docs/ops/moraen-cto-tasks.md and docs/coordination.md.

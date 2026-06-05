@@ -191,7 +191,7 @@ GroundWork overnight — karjat-farms
 
 Send `/reset` first — avoids MiniMax M2.7-style timeouts on poisoned 80k-token sessions.
 
-Model routing for GroundWork: [ops/moraen-model-routing.md](../ops/moraen-model-routing.md)
+Model routing (no CrofAI): [ops/moraen-model-routing.md](../ops/moraen-model-routing.md)
 
 ### What Moraen bot owns for GroundWork
 

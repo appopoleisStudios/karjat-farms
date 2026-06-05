@@ -2,7 +2,7 @@
 
 **Bot:** Telegram `@moraen_cto_bot` (Hermes profile `~/.hermes/profiles/cto/` on Mac Mini)  
 **Cost:** Free — uses Hermes gateway + free-tier model routing  
-**Models:** [moraen-model-routing.md](moraen-model-routing.md) — deepseek-v4-flash primary, not MiniMax M2.7  
+**Models:** [moraen-model-routing.md](moraen-model-routing.md) — **OpenRouter free + NIM free + Linux PC Ollama only (no CrofAI)**  
 **Workflow:** [dev-workflow.md](../tech/dev-workflow.md) · **Queue:** [coordination.md](../coordination.md)
 
 ---
@@ -83,8 +83,8 @@ Goals (in order):
 
 Read first: docs/HANDOFF-MORAEN.md, docs/ops/moraen-cto-tasks.md
 Session: send /reset to @moraen_cto_bot before this goal (fresh context)
-Models: primary deepseek-v4-flash; delegate JSON to qwen3-next-80b:free; GDD/arch via NIM glm-5.1 if stuck
-Do NOT: merge to main, start Unity, touch secrets
+Models (no CrofAI): OR gemma-4-31b-it:free primary; NIM llama-3.3-70b fallback; Ollama qwen2.5-coder:14b for JSON/code on Linux PC GPU
+Do NOT: merge to main, start Unity, touch secrets, use crof.ai
 ```
 
 ### Simple daytime task
