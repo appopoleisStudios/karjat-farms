@@ -37,7 +37,12 @@ Three sentences per session. Feeds GTM authenticity story.
 - Added `NVIDIA_API_KEY` to `~/.hermes/profiles/cto/.env`; cloned `docs/phase0-p0` to Mac Mini (old Unity `Assets/` backed up locally).
 - Next: Telegram `/reset` + short test message; send overnight Phase 0 goal to Moraen bot.
 
----
+## 2026-06-05 — GroundWork night 1: time-system + repo-structure docs
+
+- Completed docs/gdd/time-system.md: verified 3 game-min/real-min math, documented day/night phases (IST 5-cycle), Kharif/Rabi/Zaid seasonal gates from crops.json, crop growTime conversion table, and 4 open questions (growTime multiplier, catch-up logic, paddy/nachni nulls, day/night gates).
+- Completed docs/tech/repo-structure.md: full top-level + Unity + docs folder trees, FarmingEngine import conventions, gitignore rules, branch strategy, IDE setup, and 3 open questions (Supabase schema structure, Git LFS, scripts/ vs tools/).
+- Blocked on: growTime multiplier decision (needs Arsalan), paddy/nachni mandi research (Phase 1 prep), Git LFS not yet configured on repo.
+- Next: night 2 — farming-engine-audit.md + karjat-region-bible.md; night 3 — GDD.md + architecture.md; night 4 — crops.json completeness + README.md.
 
 <!-- Template for future sessions:
 

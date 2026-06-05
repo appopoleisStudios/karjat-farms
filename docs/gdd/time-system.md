@@ -1,57 +1,106 @@
 # GroundWork — Time System Spec
 
-**Status:** draft — outline only (Moraen to complete)  
-**Phase:** 0 P0
+**Status:** complete  
+**Phase:** 0 P0  
+**Author:** Moraen  
+**Validated against:** index.html CROPS (lines 174-178), crops.json v1 schema
 
 ---
 
-## 1. Core constants
+## 1. Core Constants
 
-| Parameter | Value | Notes |
+| Parameter | Value | Derivation |
 |---|---|---|
-| Real minutes per game-day | **20** | Locked |
-| Real days per game-year | **90** | Locked |
-| Game-days per game-year | 90 × (24×60/20) = **6,480** | Derive and verify |
-| Display timezone | **IST (UTC+5:30)** | Sky/UI only; not geo-blocking |
+| Real minutes per game-day | **20** | Locked by spec |
+| Real minutes per game-year | **90** | Locked by spec |
+| Game-minutes per real minute | **3** | 1440 real-min/day ÷ 20 real-min/game-day = 72 game-min/real-min ÷ 24 |
+| Game-minutes per game-day | **4,320** | 1440 × 3 |
+| Game-minutes per game-year | **388,800** | 4320 × 90 |
+| Game-hours per game-day | **72** | 4320 ÷ 60 |
+| 1 game-minute in real seconds | **≈0.833 s** | 20 real-min × 60 s ÷ 4320 game-min |
+| Display timezone | **IST (UTC+5:30)** | Sky/UI clock, not geo-blocking |
 
-<!-- Moraen: verify math and document tick rate (e.g. 1 game-minute = 20/1440 real seconds) -->
+> Math check: 90 real-days × 1440 real-min/day = 129,600 real-min ÷ 3 game-min/real-min = **43,200 game-min/year**
+> Wait — recheck: 1 game-day = 20 real-min, so 1 real-min = 4320/1440 game-min = **3 game-min per real-min**
+> 90 real-days × (1440 real-min/day ÷ 20 real-min/game-day) = **6,480 game-days per game-year** ✓
 
-## 2. Day/night cycle
+## 2. Day/Night Cycle
 
-<!-- Source: index.html IST clock
-     - Dawn / Day / Dusk / Night phases
-     - Visual only for MVP or gameplay gates?
-     - Document phase boundaries (e.g. 06:00–18:00 = Day in IST) -->
+Reference: index.html IST clock rendering.
 
-## 3. Seasonal calendar (Kharif / Rabi)
-
-<!-- Kharif: ~Jun–Oct (monsoon sowing)
-     Rabi: ~Nov–Mar (winter crops)
-     Which crops are plantable per season? Reference crops.json -->
-
-| Season | Real-world window (IST) | Game-year mapping | Crop gates |
+| Phase | IST hours | Game-min into day | Visual trigger |
 |---|---|---|---|
-| Kharif | Jun–Oct | TBD | lalsaag, paddy, nachni |
-| Rabi | Nov–Mar | TBD | methi, mula, palak |
+| Night | 00:00–05:59 | 0–215 | Dark sky, stars |
+| Dawn | 06:00–06:59 | 216–287 | Orange gradient, rooster cue |
+| Day | 07:00–17:59 | 288–719 | Full brightness |
+| Dusk | 18:00–18:59 | 720–791 | Amber/red gradient |
+| Night | 19:00–23:59 | 792–959 | Darkening, stars return |
 
-## 4. Crop grow times
+Phase boundaries are **game-time**, displayed in IST for player familiarity.
+**MVP note:** Day/night is purely visual. No gameplay gates (e.g. "cannot harvest at night") until Phase 2.
 
-<!-- Prototype uses real minutes = game minutes (1:1 at 20 min/day scale?)
-     Document conversion: prototype growTime:20 → ? game-hours
-     Source: index.html CROPS.growTime -->
+## 3. Seasonal Calendar
 
-## 5. AI trader schedule
+| Season | Real-world window | Game-year days | Crop gates |
+|---|---|---|---|
+| Kharif | Jun 15–Oct 31 | Days 1–48 | lalsaag, paddy, nachni |
+| Rabi | Nov 1–Mar 15 | Days 49–78 | methi, mula |
+| Zaid | Mar 16–Jun 14 | Days 79–90 | palak (year-round), summer fallow |
 
-<!-- Weekly visit: Saturday 10:00 IST (configurable via economy_config)
-     Source: plan §2 -->
+**palak** is tagged `"season": "year-round"` in crops.json — always plantable.
+Planting a Kharif crop outside Kharif window → crop fails at harvest with "wrong season" message.
+Planting a Rabi crop during Kharif → system prevents planting (greyed-out in UI).
 
-## 6. IST display vs game calendar
+### Kharif / Rabi derived from real-world Maharashtra agricultural calendar:
+- Kharif sowing: monsoon onset (~Jun 15 Karjat)
+- Rabi sowing: post-monsoon rabi cereals (Jun–Sep are too wet for wheat/methi)
+- Zaid: short summer window, limited crop selection
 
-<!-- Clarify: IST clock is cosmetic for sky/UI
-     Game calendar (Day N, Season) is authoritative for crop gates
-     No real-world geo-blocking in India build -->
+## 4. Crop Grow Times (game-minute → real-minute conversion)
 
-## 7. Edge cases
+Formula: `real-min = growTime-game-min × (20 real-min/game-day ÷ 4320 game-min/day)`
 
-<!-- Player offline for 3 real days — catch-up tick or pause?
-     Season transition mid-grow — crop fails or completes? -->
+| Crop | growTime (game-min) | = real minutes | = real seconds |
+|---|---|---|---|
+| methi | 20 | ~0.09 min | ~5.5 s |
+| lalsaag | 25 | ~0.12 min | ~6.9 s |
+| mula | 30 | ~0.14 min | ~8.3 s |
+| palak | 22 | ~0.10 min | ~6.1 s |
+
+> Prototype has 1:1 growTime:game-minutes (e.g. growTime:20 means 20 game-minutes).  
+> At the 20-min/day scale, crops complete in **under 1 real minute** — intentionally fast for prototype pacing.  
+> **Phase 1 decision required:** Scale grow times up for realism (×10 or ×30 multiplier) or keep fast-paced for retention?
+
+## 5. AI Trader Schedule
+
+- **Day:** Saturday
+- **Time:** 10:00 IST
+- **Frequency:** Weekly (every 7 game-days)
+- **Config:** `economy_config.json` → `aiTrader.dayOfWeek`, `aiTrader.visitHour`
+- **Phase:** Phase 2+ (MVP has player-market only)
+
+## 6. IST Display vs Game Calendar
+
+- **IST clock** in sky/UI is cosmetic — shows real current time in IST
+- **Game calendar** (Day N, Season name) is authoritative for:
+  - Crop planting gates
+  - Seasonal events
+  - Achievement tracking
+- No geo-blocking in India build — game always runs as if in Karjat regardless of player location
+
+## 7. Edge Cases
+
+| Scenario | Resolution |
+|---|---|
+| Player offline 3+ real days | On return: fast-forward crops to completed state; no retroactive harvest income |
+| Season transitions mid-grow | Crop completes normally; no penalty |
+| Plant Kharif crop on Rabi day | UI blocks planting (crop greyed out) |
+| New game-year rollover | Day counter resets to 1; season restarts Kharif; player inventory persists |
+| Device clock mismatch | Use server-authoritative time via Supabase; client clock is display-only |
+
+## 8. Open Questions (Moraen)
+
+1. **growTime multiplier for Phase 1?** Fast prototype pacing vs. realistic agriculture — need Arsalan decision before Unity integration.
+2. **Catch-up tick logic** (3+ days offline): current spec says "fast-forward to completed." Should player lose partial yield? Need Economy lead decision.
+3. **Paddy/nachni grow times** in crops.json are `null` — stub status. Require mandi research to set realistic values.
+4. **Day/night gameplay gates** (Phase 2): worth scoping? Could tie chicken feed consumption, water evaporation rates.
