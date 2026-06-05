@@ -3,7 +3,8 @@
 **Project:** Karjat Farms / GroundWork  
 **Phase:** 0 — Foundation docs (Week 1)  
 **Owner:** Moraen  
-**Handoff:** [HANDOFF-MORAEN.md](HANDOFF-MORAEN.md)
+**Handoff:** [HANDOFF-MORAEN.md](HANDOFF-MORAEN.md)  
+**Workflow:** [tech/dev-workflow.md](tech/dev-workflow.md) — Mac Mini primary, GitHub SDLC, Unity MCP
 
 ---
 
