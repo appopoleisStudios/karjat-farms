@@ -108,8 +108,8 @@ sequenceDiagram
 
 | # | Doc | Blocker |
 |---|---|---|
-| 1 | GDD | ≥800 words — outline only |
-| 2 | architecture | diagram + dual-build — outline only |
+| 1 | GDD | ~~≥800 words~~ **PM draft 2026-06-06** (~1238w) · SA pending |
+| 2 | architecture | ~~diagram + dual-build~~ **PM draft 2026-06-06** · SA pending |
 | 3 | farming-engine-audit | ~~Keep/Strip/Replace table empty~~ **PM reviewed 2026-06-06** |
 | 4 | karjat-region-bible | ~~stub~~ **PM reviewed 2026-06-06** |
 | 5 | crops.json / crops.md | **PM researched 2026-06-06** — 6 crops; paddy/nachni estimated params |

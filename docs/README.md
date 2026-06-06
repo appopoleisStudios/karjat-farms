@@ -14,13 +14,13 @@
 | Status | Doc | Path | Owner |
 |---|---|---|---|
 | [ ] pending | Documentation index | [docs/README.md](README.md) | Moraen |
-| [ ] pending | Game Design Document | [docs/gdd/GDD.md](gdd/GDD.md) | Moraen |
-| [ ] pending | Architecture overview | [docs/tech/architecture.md](tech/architecture.md) | Moraen |
+| [x] done | Game Design Document | [docs/gdd/GDD.md](gdd/GDD.md) | PM draft 2026-06-06 · SA pending |
+| [x] done | Architecture overview | [docs/tech/architecture.md](tech/architecture.md) | PM draft 2026-06-06 · SA pending |
 | [x] done | Repository structure | [docs/tech/repo-structure.md](tech/repo-structure.md) | Moraen · PM reviewed |
 | [x] done | Farming Engine audit | [docs/tech/farming-engine-audit.md](tech/farming-engine-audit.md) | Moraen · PM reviewed 2026-06-06 |
 | [x] done | Time system spec | [docs/gdd/time-system.md](gdd/time-system.md) | Moraen · PM reviewed (math + growTime fixes) |
 | [x] done | Karjat region bible | [docs/geo/karjat-region-bible.md](geo/karjat-region-bible.md) | Moraen · PM reviewed 2026-06-06 |
-| [ ] pending | Crop data (JSON + MD) | [docs/karjat-economy/crops.json](karjat-economy/crops.json) · [crops.md](karjat-economy/crops.md) | PM researched 2026-06-06 |
+| [x] done | Crop data (JSON + MD) | [docs/karjat-economy/crops.json](karjat-economy/crops.json) · [crops.md](karjat-economy/crops.md) | PM researched 2026-06-06 |
 
 Update checkboxes to `[x] done` as each doc is completed.
 

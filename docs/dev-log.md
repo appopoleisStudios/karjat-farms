@@ -68,6 +68,12 @@ Three sentences per session. Feeds GTM authenticity story.
 - Locked UI naming: **English primary**, Hindi names as Latin transliteration only (`palak`, `mooli`, `dhan`) — no Devanagari in default UI.
 - Corrected paddy variety to Trombay Karjat Kolam (RARS Karjat Raigad trials); removed wrong “Karadai” label.
 
+## 2026-06-06 — PM Phase 0 completion pass (GDD + architecture)
+
+- Wrote GDD.md (~1238 words) and architecture.md (~1222 words) — unblocks SA full re-audit of PR #1.
+- Posted SA re-audit packet: docs/qa/sa-reaudit-pr1.md. Claude SA: formal GitHub review + merge if pass.
+- Moraen evening reassigned: README index polish only (not GDD/arch — PM completed).
+
 ## 2026-06-05 — GroundWork night 2: farming-engine-audit + karjat-region-bible docs
 
 - Completed docs/tech/farming-engine-audit.md: 16-system Keep/Strip/Replace table with TBD markers, Karjat crop injection via Resources/KarjatData/, Phase 1 import checklist, 5 open engineering questions.
