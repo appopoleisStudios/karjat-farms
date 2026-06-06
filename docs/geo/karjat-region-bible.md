@@ -35,7 +35,7 @@
 | Zaid (Summer) | Mar 16–Jun 14 | Very low | Irrigation only; most Rabi crops already harvested |
 | Presummer fallow | Mid-Jun | Pre-monsoon | Waiting period; no planting until monsoon onset |
 
-**Game mechanic (Phase 2+):** Kharif crops have 0 water cost at plant. Rabi crops charge `waterCostPerDay × daysSincePlant` deducted at harvest. Palak (year-round) has flat water cost.
+**Game mechanic:** Seasonal planting gates enforced in Phase 1 via `KarjatGameClock` (see farming-engine-audit.md). **Water as a spendable resource** (Rabi irrigation cost, Kharif zero-water bonus) deferred to Phase 2+ — MVP uses season gates only, not water economy.
 
 ---
 
@@ -43,7 +43,7 @@
 
 All six crops documented. Source priority: `index.html` CROPS object (prototype params), `crops.json` (v1 schema), Agmarknet (mandi prices where available).
 
-| Crop | Local name | Season | Game growTime (game-min) | Seed cost (Bushels) | Sell price (Bushels) | Mandi ref (₹/quintal) | MVP? | Prototype? |
+| Crop | Local name | Season | growTime (see time-system §4) | Seed cost (Bushels) | Sell price (Bushels) | Mandi ref (₹/quintal) | MVP? | Prototype? |
 |---|---|---|---|---|---|---|---|---|
 | Methi | मेथी | Rabi | 20 | 5 | 15 | TBD (leafy, sold per bundle — see §5) | ✅ | ✅ (index.html) |
 | Lal Saag | लाल साग | Kharif | 25 | 3 | 10 | TBD | ✅ | ✅ (index.html) |
@@ -94,7 +94,7 @@ All six crops documented. Source priority: `index.html` CROPS object (prototype 
 
 ### AI weekly trader (Phase 2+)
 - Flavor: "village buyer" who visits Karjat village on Saturday mornings
-- Not a generic FE NPC shop — custom `AIMarketTrader` with configurable markup/discount on manditory prices
+- Not a generic FE NPC shop — custom `AIMarketTrader` with configurable markup/discount on mandi prices
 - References `economy_config.json` for pricing schedule
 - **Phase 1 MVP:** Direct harvest-sell only (player drops crop at market UI, receives Bushels immediately)
 
@@ -121,7 +121,7 @@ All six crops documented. Source priority: `index.html` CROPS object (prototype 
 | Mandi prices | Agmarknet Raigad (directional) | Live API scrape |
 | Season calendar | Maharashtra agricultural calendar | Real-week mapping per lat/lon |
 | Water rules | Karjat rainfall model | GAEZ water balance model |
-| Market prices | AI trader (fixed schedule) | Dynamic market simulation |
+| Market prices | Direct harvest-sell (Phase 1); AI trader (Phase 2+) | Dynamic market simulation |
 
 **T0 is the MVP.** T2 (FAO GAEZ v5 global lookup) deferred to Phase 2.5+. T0 overrides live in `Resources/KarjatData/GeoConfig.asset`.
 

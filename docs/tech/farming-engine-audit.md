@@ -30,14 +30,14 @@
 | `AnimalData` / livestock | **K → R** | Chicks MVP only; replace FE cow/sheep/pig defaults with `ChickData` ScriptableObject | TBD |
 | `GameClock` / day-night cycle | **K → R** | Subclass for Kharif/Rabi season gates; IST cosmetic clock (see time-system.md §6) | TBD |
 | Save system (`SaveSystem`) | **K → R** | Keep FE local save; add Supabase cloud sync in Phase 2. See §4 Phase 2 item #3 | TBD |
-| NPC Shop (`NpcShop`) | **S → R** | Strip FE shop; replace with AI weekly trader (Phase 2). MVP uses player-to-player market only | TBD |
+| NPC Shop (`NpcShop`) | **S → R** | Strip FE shop for MVP. Phase 1: direct harvest-sell UI. Phase 2: AI weekly trader replaces shop | TBD |
 | `Inventory` | **K** | Bushels + harvested crop items only; no additional item types in MVP | TBD |
 | Crafting | **S** | Strip for MVP — no crafting in v1 scope | TBD |
 | Building placement | **S → defer** | Deferred beyond Phase 1; no farm building placement in MVP | TBD |
 | Mobile touch input | **K** | FE mobile input already handles touch planting/harvesting; verify on Android device in Phase 1 | TBD |
 | UI framework | **K → R** | Reskin all FE UI prefabs for Karjat aesthetic (earth tones, Marathi crop names, IST clock) | TBD |
 | Player-to-player market | **R** | Not in FE; requires custom `MarketSystem` (Phase 2). MVP has direct-harvest-sell only | TBD |
-| GeoEcosystem rules | **R** | Not in FE; `GeoConfig` drives Kharif/Rabi gates, water cost, monsoon bonus (Phase 2+) | TBD |
+| GeoEcosystem rules | **R** | Not in FE; `GeoConfig` + `KarjatGameClock` enforce Kharif/Rabi planting gates in Phase 1 (see time-system.md §3). Water cost model Phase 2+ | TBD |
 | Config-driven economy | **R** | Not in FE; `economy_config.json` via Supabase RLS (Phase 2+) | TBD |
 | Dual-build IN/GLOBAL | **R** | Not in FE; branching via Unity Build Defines (Phase 3+) | TBD |
 | Audio / SFX | **K** | Keep FE audio stubs; replace with Karjat farm ambience + Marathi voice lines | TBD |
@@ -58,7 +58,7 @@ Resources/KarjatData/
 │   ├── PaddyData.asset    # stub until mandi research completes
 │   └── NachniData.asset   # stub until mandi research completes
 ├── ChickData.asset
-└── EconomyConfig.asset     # Bushel prices, AI trader schedule
+└── GeoConfig.asset          # Season gates (Phase 1); economy tuning (Phase 2+)
 ```
 
 **Workflow**: `crops.json` (source of truth) → Python generator script (`scripts/generate_plantdata.py`) → Unity ScriptableObject assets. Never hand-author `.asset` files.

@@ -70,16 +70,50 @@ sequenceDiagram
 
 ---
 
+## Night 2 review summary (2026-06-06)
+
+**Prior pass:** Integration from Mac Mini was skim-only — not a full PM/game-dev review. This section is the real pass.
+
+| Doc | Verdict | PM / senior dev notes |
+|---|---|---|
+| [farming-engine-audit.md](../tech/farming-engine-audit.md) | **Accept with fixes** | Strong Keep/Strip/Replace table and Phase 1 checklist. Fixed: NPC shop row wrongly said P2P market in MVP; GeoEcosystem wrongly deferred season gates to Phase 2; `EconomyConfig` asset renamed to `GeoConfig` for Phase 1 scope |
+| [karjat-region-bible.md](../geo/karjat-region-bible.md) | **Accept with fixes** | Best doc in the batch — mandi bundle-vs-quintal note is exactly right for game tuning. Fixed: water economy vs season-gate phase split; growTime column cross-ref to time-system §4; T0 market row; typo |
+
+### Senior game dev — what holds up
+
+- **Farming Engine audit** gives Phase 1 engineers a usable strip list (crafting, buildings, NPC shop out; touch + inventory in).
+- **`crops.json` → generator → ScriptableObjects** pipeline is the right architecture — avoids hand-editing `.asset` files.
+- **Region bible §5** correctly separates directional mandi research from Bushel game-balance — prevents naive ₹→Bushel conversion bugs.
+- **500 Bushels chick starter** is a meaningful mid-game sink (~25–50 crop harvests at prototype prices) — tune in Phase 1 playtest, not a doc blocker.
+
+### Senior PM — still open (not blockers for P0 doc acceptance)
+
+| # | Item | Owner | PM disposition |
+|---|---|---|---|
+| N2-1 | Paddy/nachni game params still null in `crops.json` | Moraen night 4 | Nachni mandi range written in bible §5 but not synced to JSON — night 4 task |
+| N2-2 | Paddy local name "करडई" — verify vs Kolam variety naming | Arsalan | Flag for authenticity review |
+| N2-3 | Phase 1 UI language "Hindi/Marathi bilingual" — not in GDD yet | Arsalan + night 3 GDD | Defer to GDD; default recommendation Marathi-primary |
+| N2-4 | Real-world season table (Jun–Oct) vs game-day calendar (1–40) not explicitly mapped | PM | Add one-line cross-ref in architecture.md (night 3) |
+| N2-5 | 500 Bushel chick cost vs early economy | Phase 1 playtest | Document only; no change now |
+
+### Blockers fixed in this review (PM commit pending)
+
+1. MVP market model: direct harvest-sell (Phase 1), not P2P market
+2. Season gates Phase 1, water economy Phase 2+
+3. growTime column must reference time-system unit schism
+
+---
+
 ## Acceptance gaps (still open P0)
 
 | # | Doc | Blocker |
 |---|---|---|
 | 1 | GDD | ≥800 words — outline only |
 | 2 | architecture | diagram + dual-build — outline only |
-| 3 | farming-engine-audit | Keep/Strip/Replace table empty |
-| 4 | karjat-region-bible | stub |
+| 3 | farming-engine-audit | ~~Keep/Strip/Replace table empty~~ **PM reviewed 2026-06-06** |
+| 4 | karjat-region-bible | ~~stub~~ **PM reviewed 2026-06-06** |
 | 5 | crops.json / crops.md | 4 complete, 2 stubs |
-| 6 | README checkboxes | 2/8 done after PM pass |
+| 6 | README checkboxes | 4/8 done |
 
 ---
 
@@ -101,3 +135,4 @@ sequenceDiagram
 | Date | Who | Note |
 |---|---|---|
 | 2026-06-05 | Cursor PM | Night 1 review; math fixes; SA questions drafted |
+| 2026-06-06 | Cursor PM | Night 2 full review; fixed market/season/water contradictions |
