@@ -53,11 +53,13 @@ Good for **Unity MCP, judgment, live iteration**:
 
 ### **You (Arsalan)** only
 
-- Approve and merge PRs to `main`
+- Set overnight Telegram goals
 - Playtest feel/balance on device
+- Answer product questions flagged in SA/PM review
 - Legal/compliance sign-off
 - Purchases (Farming Engine $49, Unity license)
-- Set overnight goals on Telegram
+
+**Merge to `main`:** Claude SA after audit (not trainee by default).
 
 ---
 
@@ -184,7 +186,7 @@ Add GroundWork to Moraen SOUL/MEMORY repo list if not already present (Mac Mini 
 | 4 | `farming-engine-audit.md` + update `docs/README.md` checkboxes |
 | 5 | Final PR polish; split or merge PR for review |
 
-You do **zero** doc writing if Moraen bot runs all five nights — you only review and merge.
+You do **zero** doc writing if Moraen bot runs all five nights — PM + Claude SA handle review and merge.
 
 ---
 

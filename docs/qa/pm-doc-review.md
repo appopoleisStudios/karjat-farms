@@ -23,7 +23,7 @@ sequenceDiagram
   SA->>GH: audit — devil's advocate, gaps, risks
   PM->>GH: address SA comments; revise docs
   SA->>GH: approve or request changes
-  T->>GH: merge to main (after SA pass)
+  SA->>GH: approve + merge to main
 ```
 
 **Hard rules:**

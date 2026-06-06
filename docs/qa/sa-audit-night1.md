@@ -49,8 +49,9 @@
 
 ## Re-audit checklist (Claude SA)
 
-- [ ] §8 decisions table complete — no orphan questions
-- [ ] §3 season split + caveat satisfies authenticity concern
-- [ ] repo-structure §6–§7 matches coordination.md + dev-workflow.md
-- [ ] moraen-model-routing §6b present
+- [x] §8 decisions table complete — no orphan questions
+- [x] §3 season split + caveat satisfies authenticity concern
+- [x] repo-structure §6–§7 matches coordination.md + dev-workflow.md (PM cross-doc pass 2026-06-05)
+- [x] moraen-model-routing §6b present
+- [ ] Claude SA formal GitHub review posted
 - [ ] Ready to merge PR #1 to `main`

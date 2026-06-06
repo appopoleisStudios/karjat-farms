@@ -15,7 +15,7 @@
 |---|---|
 | One repo | Code, docs, Unity project, Supabase migrations — all in git |
 | One primary dev seat | Mac Mini runs Unity + Cursor + MCP + Moraen Hermes |
-| Three agents | **You** (review/merge) · **Cursor** (interactive Unity MCP) · **Moraen bot** (async Telegram, free) |
+| **Three agents** | **Trainee** (vision/playtest) · **Cursor PM** (review/PR) · **Moraen bot** (overnight labor) · **Claude SA** (audit/merge) |
 | GitHub is canonical | Machines are clones, not owners |
 | Unity MCP = interactive only | Cursor on Mac Mini talks to **local** Unity Editor |
 | Moraen bot = async labor | Docs, research, boilerplate — **commit + push only**; PM opens PRs |
@@ -86,16 +86,18 @@ flowchart LR
     Moraen[Moraen CTO bot via Telegram]
   end
   You -->|22:00 Telegram goal| Moraen
-  Moraen -->|PR + report 08:00| You
-  You -->|Unity MCP tasks| CursorS
+  Moraen -->|push + Telegram report| PM
+  PM -->|gh pr create| PR
+  PR -->|SA audit| SA[Claude SA]
+  SA -->|merge| Main
 ```
 
 | When | Agent | Example |
 |---|---|---|
-| **Morning** | You | Review Moraen's overnight PR; merge docs |
-| **Day** | Cursor + you | Unity MCP: wire crops, Play mode, debug |
-| **Evening** | You → Moraen bot | Send overnight goal (see [moraen-cto-tasks.md](../ops/moraen-cto-tasks.md)) |
-| **Night** | Moraen bot (free) | Write docs, research mandi prices, open PR |
+| **Morning** | PM + Claude SA | PM reviews Moraen commits; opens/updates PR; SA re-audits |
+| **Day** | Cursor + trainee | Unity MCP: wire crops, Play mode, debug |
+| **Evening** | Trainee → Moraen | Send overnight goal ([moraen-cto-tasks.md](../ops/moraen-cto-tasks.md)) |
+| **Night** | Moraen bot | Write docs, research — **commit + push only** |
 
 Full task routing table: [ops/moraen-cto-tasks.md](../ops/moraen-cto-tasks.md)
 
@@ -105,9 +107,9 @@ Full task routing table: [ops/moraen-cto-tasks.md](../ops/moraen-cto-tasks.md)
 
 ### Morning — review Moraen + sync
 
-1. Read Moraen Telegram report (if overnight goal was set)
-2. Review/open PR on GitHub
-3. Merge doc-only PRs yourself; Unity PRs → checkout branch for MCP session
+1. Read Moraen Telegram report (commit SHA, TBD list)
+2. PM reviews diff vs [HANDOFF-MORAEN.md](../HANDOFF-MORAEN.md); opens or updates PR
+3. Claude SA audits; **SA merges** doc PRs — trainee answers product questions only
 
 ```bash
 cd ~/projects/karjat-farms
@@ -277,7 +279,7 @@ Port/path varies by MCP package — copy from the Unity MCP window after install
 - Google Play signing keystore creation
 - App Store / Play Console submission
 - Legal/compliance sign-off
-- Merging PRs you want to review carefully
+- Merging to `main` (Claude SA only after audit)
 
 ### Blender MCP (Phase 1+ art pipeline)
 
@@ -293,21 +295,21 @@ Unreal is out of scope (GroundWork is Unity + Farming Engine).
 
 ## 8. Phase 0 workflow (now — docs only)
 
-No Unity yet. **Moraen bot writes docs overnight; you review and merge.**
+No Unity yet. **Moraen writes overnight → PM opens PR → Claude SA merges.**
 
 ```mermaid
 flowchart LR
   Push[Push branch to GitHub] --> TG[Telegram overnight goal]
   TG --> Moraen[Moraen bot writes docs]
-  Moraen --> PR[Opens PR]
-  PR --> You[You review + merge]
+  Moraen --> PM[PM reviews + gh pr create]
+  PM --> SA[Claude SA audit + merge]
 ```
 
-**Your steps:**
+**Steps:**
 
-1. Ensure `docs/phase0-p0` is on GitHub
-2. Send Moraen bot the Phase 0 overnight template ([moraen-cto-tasks.md](../ops/moraen-cto-tasks.md))
-3. Morning: review PR, merge to `main`
+1. Trainee sends Moraen overnight template ([moraen-cto-tasks.md](../ops/moraen-cto-tasks.md))
+2. Morning: PM reviews commits, opens/updates PR
+3. Claude SA audits → merge to `main` when checklist passes
 
 **Optional:** Cursor on Mac Mini for doc edits you want to do interactively — don't duplicate Moraen's overnight queue.
 
@@ -333,7 +335,7 @@ Machine: Mac Mini
 Open: Cursor + Unity Editor + MCP bridge
 Prompt: "Add Karjat methi as a PlantData ScriptableObject from docs/karjat-economy/crops.json"
 Agent: creates SO → places test plot via MCP → runs play mode
-You: review diff → commit → PR → merge
+You: playtest → PM opens PR → **Claude SA merge**
 ```
 
 ### Pattern B — Docs / research (Moraen bot, overnight)
@@ -341,8 +343,9 @@ You: review diff → commit → PR → merge
 ```
 Machine: Mac Mini (headless Hermes)
 Trigger: Telegram overnight goal to @moraen_cto_bot
-Moraen: writes docs, researches mandi prices, updates crops.json, opens PR
-You: morning review → merge
+Moraen: writes docs, researches mandi prices, updates crops.json, **pushes branch**
+PM: morning review → **gh pr create**
+Claude SA: audit → **merge**
 ```
 
 ### Pattern C — Backend schema (split)
@@ -350,7 +353,7 @@ You: morning review → merge
 ```
 Night — Moraen bot: draft docs/backend/database-schema.md + SQL migration file
 Day — Cursor + Supabase MCP: apply migration, test RLS
-You: merge after both steps pass
+You: **Claude SA merge** after both steps pass
 ```
 
 ---
@@ -376,7 +379,7 @@ Linux laptop SSH setup remains useful as a **backup access path**, not the prima
 - [ ] `git clone` + `gh auth login`
 - [ ] Hermes Moraen gateway running (`ai.hermes.gateway-cto`)
 - [ ] Send first overnight Telegram goal ([moraen-cto-tasks.md](../ops/moraen-cto-tasks.md))
-- [ ] Review Moraen PR → merge `docs/phase0-p0` → `main`
+- [ ] PM opens PR for Phase 0; Claude SA merges after audit
 
 ### Mac Mini — Phase 1 (Unity)
 

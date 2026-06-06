@@ -16,7 +16,7 @@
 |---|---|
 | **Moraen CTO bot** (Telegram `@moraen_cto_bot`) | **Free overnight labor** — writes docs, research, PRs |
 | **Cursor** (interactive on Mac Mini) | Unity MCP, complex debug, architecture with you |
-| **You (Arsalan)** | Set overnight goals, review PRs, merge `main`, playtest |
+| **You (Arsalan)** | Set overnight goals, playtest, answer product questions flagged in SA review |
 
 **You do not need to write Phase 0 docs yourself.** Send Moraen bot an overnight Telegram goal; review the PR in the morning.
 
@@ -46,11 +46,11 @@ Goals (all 8 P0 docs — see HANDOFF acceptance table):
 
 Read: docs/HANDOFF-MORAEN.md
 Append docs/dev-log.md each session
-Open PR when done; Telegram report with link
-Do NOT: merge to main, start Unity
+Open PR when done; Telegram report with commit SHA
+Do NOT: merge to main, gh pr create, start Unity
 ```
 
-**Morning:** Review PR → merge to `main`.
+**Morning:** PM opens PR → Claude SA audits → **SA merges** to `main`.
 
 ### Mac Mini one-time setup (if not done)
 
@@ -117,10 +117,8 @@ Append to [docs/dev-log.md](dev-log.md) after each session.
 git add docs/
 git commit -m "docs: complete Phase 0 P0 documentation"
 git push -u origin docs/phase0-p0
-gh pr create --title "docs: Phase 0 P0 foundation" --body "Completes 8 P0 docs for Week 1."
+# PM opens PR from moraen-Home — not Moraen bot
 ```
-
-Merge to `main` after review.
 
 ---
 

@@ -10,8 +10,8 @@
 | Role | Who | Responsibility |
 |---|---|---|
 | **Senior Dev + PM** | Cursor (this agent) | Roadmap, priorities, architecture, PR review guidance, GTM/tech research, trainee assignments |
-| **Trainee — Product** | Arsalan | Vision input, playtest, merge gate, learn-by-doing tasks assigned by PM; escalates blockers |
-| **Async engineer** | Moraen CTO bot (`@moraen_cto_bot`) | Overnight docs, research, boilerplate, PRs — scoped by PM via Telegram goals |
+| **Trainee — Product** | Arsalan | Vision input, playtest, product answers, learn-by-doing tasks assigned by PM; escalates blockers |
+| **Async engineer** | Moraen CTO bot (`@moraen_cto_bot`) | Overnight docs, research, boilerplate — commit + push only; scoped by PM via Telegram goals |
 | **Interactive dev** | Cursor + Arsalan at Mac Mini | Unity MCP sessions, complex debug when PM schedules them |
 
 **Decision flow:** Moraen bot commits on branch → **PM (Cursor) reviews, fixes, opens PR from moraen-Home** → **Claude SA audit (devil's advocate)** → PM addresses comments → **Claude merges** → trainee learns from diff.
@@ -33,7 +33,7 @@
 | Agent | Interface | Runs on | Cost | Best for |
 |---|---|---|---|---|
 | **Cursor (PM + senior dev)** | Cursor IDE | moraen-Home / Mac Mini | Cursor subscription | Roadmap, research, code review, architecture, trainee task design |
-| **Arsalan (trainee)** | Cursor, Telegram | Any | — | Assigned learning tasks, PR review, playtest, merge to `main` |
+| **Arsalan (trainee)** | Cursor, Telegram | Any | — | Overnight goals, playtest, product answers |
 | **Moraen CTO bot** | Telegram `@moraen_cto_bot` | Mac Mini | **Free** | Overnight docs/research/PRs per PM-written goals |
 | **Cursor interactive** | Cursor IDE + MCP | Mac Mini | Cursor subscription | Unity MCP, live pairing with trainee |
 
@@ -44,13 +44,15 @@ flowchart TB
   MoraenBot[moraen_cto_bot]
   Unity[Unity + MCP on Mac Mini]
   PR[Pull requests]
+  SA[Claude SA]
   Main[main]
 
   PM -->|priorities + overnight goals| MoraenBot
   PM -->|trainee assignments| Trainee
-  MoraenBot -->|git PR| PR
-  Trainee -->|review + merge| PR
-  PR --> Main
+  MoraenBot -->|git push| PR
+  Trainee -->|product answers| PM
+  PM -->|gh pr create| PR
+  SA -->|merge| Main
   PM -->|Phase 1+ schedules| Unity
   Trainee --> Unity
   MoraenBot -->|Telegram report| Trainee
@@ -90,7 +92,7 @@ Assigned by PM. Do in order; ask in Cursor if blocked >30 min.
 | # | Task | Done when |
 |---|---|---|
 | T1 | Send Night 1 overnight goal to `@moraen_cto_bot` (see [moraen-cto-tasks.md](ops/moraen-cto-tasks.md)) | Bot acknowledges; work starts overnight |
-| T2 | Next morning: review Moraen PR — read diff against [HANDOFF-MORAEN.md](HANDOFF-MORAEN.md) acceptance table | Comment or merge if criteria met |
+| T2 | Read SA checklist in [qa/sa-audit-night1.md](qa/sa-audit-night1.md); answer product Q1/Q3 if flagged | Reply to PM in Telegram or PR comment |
 | T3 | Read [gtm-twitter-intel-research.md](ops/gtm-twitter-intel-research.md); pick **one** Chronicler fix to prioritize | Reply to PM with choice + why (1 paragraph) |
 | T4 | Play `index.html` prototype 10 min; note 3 things that must survive into Unity MVP | Add bullets to next dev-log entry or tell PM |
 

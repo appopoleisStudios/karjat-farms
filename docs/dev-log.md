@@ -27,7 +27,7 @@ Three sentences per session. Feeds GTM authenticity story.
 ## 2026-06-05 — Moraen CTO bot integrated
 
 - Added docs/ops/moraen-cto-tasks.md and docs/coordination.md.
-- Three-agent model: Moraen bot (free overnight docs/PRs), Cursor interactive (Unity MCP), Arsalan (review/merge).
+- Three-agent model: Moraen bot (free overnight docs), Cursor PM (review + `gh pr create`), Claude SA (audit + merge), Arsalan (playtest + product answers).
 - Phase 0 docs assigned to Moraen bot via Telegram overnight goals — not manual writing by default.
 
 ## 2026-06-05 — H-032 smoke test + Mac Mini rails applied
