@@ -91,8 +91,8 @@ sequenceDiagram
 | # | Item | Owner | PM disposition |
 |---|---|---|---|
 | N2-1 | Paddy/nachni game params still null in `crops.json` | Moraen night 4 | Nachni mandi range written in bible §5 but not synced to JSON — night 4 task |
-| N2-2 | Paddy local name "करडई" — verify vs Kolam variety naming | Arsalan | Flag for authenticity review |
-| N2-3 | Phase 1 UI language "Hindi/Marathi bilingual" — not in GDD yet | Arsalan + night 3 GDD | Defer to GDD; default recommendation Marathi-primary |
+| N2-2 | Paddy variety naming | PM | **Resolved** — Trombay Karjat Kolam (TKR Kolam); UI `dhan` translit |
+| N2-3 | UI language | PM | **Resolved** — English primary; Hindi transliteration in Latin script |
 | N2-4 | Real-world season table (Jun–Oct) vs game-day calendar (1–40) not explicitly mapped | PM | Add one-line cross-ref in architecture.md (night 3) |
 | N2-5 | 500 Bushel chick cost vs early economy | Phase 1 playtest | Document only; no change now |
 
@@ -112,7 +112,7 @@ sequenceDiagram
 | 2 | architecture | diagram + dual-build — outline only |
 | 3 | farming-engine-audit | ~~Keep/Strip/Replace table empty~~ **PM reviewed 2026-06-06** |
 | 4 | karjat-region-bible | ~~stub~~ **PM reviewed 2026-06-06** |
-| 5 | crops.json / crops.md | 4 complete, 2 stubs |
+| 5 | crops.json / crops.md | **PM researched 2026-06-06** — 6 crops; paddy/nachni estimated params |
 | 6 | README checkboxes | 4/8 done |
 
 ---

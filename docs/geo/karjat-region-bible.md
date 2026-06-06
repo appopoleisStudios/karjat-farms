@@ -43,16 +43,18 @@
 
 All six crops documented. Source priority: `index.html` CROPS object (prototype params), `crops.json` (v1 schema), Agmarknet (mandi prices where available).
 
-| Crop | Local name | Season | growTime (see time-system §4) | Seed cost (Bushels) | Sell price (Bushels) | Mandi ref (₹/quintal) | MVP? | Prototype? |
-|---|---|---|---|---|---|---|---|---|
-| Methi | मेथी | Rabi | 20 | 5 | 15 | TBD (leafy, sold per bundle — see §5) | ✅ | ✅ (index.html) |
-| Lal Saag | लाल साग | Kharif | 25 | 3 | 10 | TBD | ✅ | ✅ (index.html) |
-| Mula | मुळा | Rabi | 30 | 8 | 20 | TBD (radish, root vegetable) | ✅ | ✅ (index.html) |
-| Palak | पालक | Year-round | 22 | 6 | 18 | TBD (leafy, sold per bundle) | ✅ | ✅ (index.html) |
-| Paddy | करडई / Karjat Kolam | Kharif | TBD | TBD | TBD | ₹2,350–4,700 | ✅ | stub — add in Phase 1 |
-| Nachni | नाचणी (Ragi) | Kharif (upland) | TBD | TBD | TBD | TBD (millet, drought-resilient) | ✅ | stub — add in Phase 1 |
+| Crop (English UI) | Hindi translit. | Season | growTime* | Seed (Bushels) | Sell (Bushels) | Mandi ref (₹/quintal) | MVP? |
+|---|---|---|---|---|---|---|---|
+| Methi | methi | Rabi | 20 | 5 | 15 | 1,550–4,020 (MH leaves) | ✅ |
+| Red Amaranth | lal saag | Kharif | 25 | 3 | 10 | ~1,000–1,700 | ✅ |
+| Radish | mooli | Rabi | 30 | 8 | 20 | ~800–2,500 | ✅ |
+| Spinach | palak | Year-round | 22 | 6 | 18 | ~400–3,000 | ✅ |
+| Paddy (Karjat Kolam) | dhan | Kharif | 50† | 20 | 70 | 2,369–2,450 (Karjat APMC) | ✅ estimated |
+| Finger Millet | nachni | Kharif | 38† | 10 | 42 | 4,900–5,700 (MH hub) | ✅ estimated |
 
-**paddy mandi ref source:** `crops.json` `"mandiRefQuintalInr": { "min": 2350, "max": 4700 }` — Agmarknet range for Maharashtra Kolam/Regular paddy, 2024 season.
+\*See [time-system.md §4](../gdd/time-system.md) for growTime unit schism. †Paddy/nachni game params estimated — playtest in Phase 1.
+
+**Variety note:** Karjat flagship paddy = **Trombay Karjat Kolam (TKR Kolam)**, tested at RARS Karjat Raigad — not “Karadai”.
 
 **Seasonal gates (from time-system.md §3):**
 - Kharif plantable: lalsaag, paddy, nachni
@@ -89,8 +91,8 @@ All six crops documented. Source priority: `index.html` CROPS object (prototype 
 ### mandi price notes for game params
 - **Leafy vegetables (methi, palak, lal saag):** Sold in **bundles** at mandi, not quintals. Agmarknet tracks these as per-quintal for wholesale analysis, but village-level sales are bundle-based. Game sell price in Bushels is hand-tuned (see crops.json prototype values); real-world mandi prices are directional reference only.
 - **Root vegetables (mula/radish):** Similarly sold by weight in mandi but purchased by farmers per packet of seed. Bushels sell price in-game is a game-balance decision, not a direct mandi conversion.
-- **Paddy (rice grain):** The ₹2,350–4,700/quintal Agmarknet range is for **paddy/rice**, the processed commodity. Raw paddy at farm-gate would be lower (₹1,800–2,500/quintal in Raigad district, 2024). Game uses ₹2,350–4,700 as directional ceiling.
-- **Nachni (ragi/millet):** Millets trade at ₹2,500–4,000/quintal in Raigad/Nashik mandis per Agmarknet. TBD for game params.
+- **Paddy (dhan):** Karjat(Raigad) APMC **₹2,369–2,450/quintal** for common paddy (2024–25). Milled rice trades higher (₹4,100–5,800/q) — game uses farm-gate paddy ref, not retail rice.
+- **Nachni (ragi/millet):** Maharashtra hub modal **₹4,900–5,700/quintal** (Pune APMC 2026). Game params in crops.json are estimated.
 
 ### AI weekly trader (Phase 2+)
 - Flavor: "village buyer" who visits Karjat village on Saturday mornings
@@ -106,10 +108,11 @@ All six crops documented. Source priority: `index.html` CROPS object (prototype 
 
 ## 6. Social & Cultural Flavor
 
-- **Crop UI names:** Use Marathi script + transliteration (e.g. "मेथी / Methi") — not English-only
+- **UI language (PM decision):** **English primary.** Hindi crop names appear as **Latin transliteration** in subtitles — e.g. `Spinach (palak)`, `Finger Millet (nachni)`. No Devanagari in default Phase 1 UI.
+- **Crop labels:** English common name first; `(localName)` from [crops.json](../karjat-economy/crops.json) when it adds Karjat flavor.
 - **Local calendar events (Phase 2+):** Diwali bonus market prices, monsoon festival narrative events
 - **Village aesthetic:** Laterite soil tiles, Ulhas River visual, Matheran-inspired hill backdrop
-- **Language:** UI bilingual Hindi/Marathi for Phase 1; English option Phase 2+
+- **Voice/locale (Phase 2+):** Optional Hindi audio; English UI remains default
 
 ---
 
@@ -131,7 +134,7 @@ All six crops documented. Source priority: `index.html` CROPS object (prototype 
 
 | Source | Status | Notes |
 |---|---|---|
-| [Agmarknet](https://agmarknet.gov.in) | Partial | paddy ₹2,350–4,700 confirmed; leafy veg + nachni TBD |
+| [Agmarknet](https://agmarknet.gov.in) | Partial | paddy Karjat APMC ₹2,369–2,450; nachni via Pune hub ₹4,900–5,700 |
 | Maharashtra Agricultural Calendar | Not reviewed | Needed for Rabi/Kharif window confirmation |
 | Karjat taluka agricultural officer | Not contacted | Phase 1 field validation target |
 | crops.json v1 schema | ✅ Complete | Source of truth for game params (prototype 4 crops) |
@@ -141,8 +144,8 @@ All six crops documented. Source priority: `index.html` CROPS object (prototype 
 
 ## 9. TBD Items (require PM/SA decision — do not implement without sign-off)
 
-1. **Methi/palak/lalsaag/mula mandi prices** — TBD. Research Agmarknet Raigad mandi for leafy vegetable bundle prices (not quintal rates). PM to decide whether game sell prices derive from mandi research or game-balance tuning.
-2. **Nachni game params** — TBD. Drought-resilient upland millet; mandi reference exists but game growTime/seedCost/sellPrice not yet set. PM to decide: complete for Phase 1 launch or defer?
+1. **Leafy crop mandi → Bushels** — **Resolved:** game prices hand-tuned; mandi directional only (see crops.md). No auto-conversion.
+2. **Nachni game params** — **Estimated** in crops.json (seed 10 / grow 38 / sell 42). Validate in Phase 1 playtest.
 3. **Water cost values** — TBD Phase 1 economy tuning. Not a blocker for Phase 0 doc acceptance.
 4. **Egg income values** — TBD Phase 1 economy tuning. Chick economy balance not yet scoped.
 5. **Seasonal events** — Phase 2+. TBD scope and festival calendar.

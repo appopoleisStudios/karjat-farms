@@ -20,7 +20,7 @@
 | [x] done | Farming Engine audit | [docs/tech/farming-engine-audit.md](tech/farming-engine-audit.md) | Moraen · PM reviewed 2026-06-06 |
 | [x] done | Time system spec | [docs/gdd/time-system.md](gdd/time-system.md) | Moraen · PM reviewed (math + growTime fixes) |
 | [x] done | Karjat region bible | [docs/geo/karjat-region-bible.md](geo/karjat-region-bible.md) | Moraen · PM reviewed 2026-06-06 |
-| [ ] pending | Crop data (JSON + MD) | [docs/karjat-economy/crops.json](karjat-economy/crops.json) · [crops.md](karjat-economy/crops.md) | Moraen |
+| [ ] pending | Crop data (JSON + MD) | [docs/karjat-economy/crops.json](karjat-economy/crops.json) · [crops.md](karjat-economy/crops.md) | PM researched 2026-06-06 |
 
 Update checkboxes to `[x] done` as each doc is completed.
 

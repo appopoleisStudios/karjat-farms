@@ -35,7 +35,7 @@
 | Crafting | **S** | Strip for MVP — no crafting in v1 scope | TBD |
 | Building placement | **S → defer** | Deferred beyond Phase 1; no farm building placement in MVP | TBD |
 | Mobile touch input | **K** | FE mobile input already handles touch planting/harvesting; verify on Android device in Phase 1 | TBD |
-| UI framework | **K → R** | Reskin all FE UI prefabs for Karjat aesthetic (earth tones, Marathi crop names, IST clock) | TBD |
+| UI framework | **K → R** | Reskin FE UI: English primary labels + Hindi transliteration subtitles (see crops.json namingPolicy) | TBD |
 | Player-to-player market | **R** | Not in FE; requires custom `MarketSystem` (Phase 2). MVP has direct-harvest-sell only | TBD |
 | GeoEcosystem rules | **R** | Not in FE; `GeoConfig` + `KarjatGameClock` enforce Kharif/Rabi planting gates in Phase 1 (see time-system.md §3). Water cost model Phase 2+ | TBD |
 | Config-driven economy | **R** | Not in FE; `economy_config.json` via Supabase RLS (Phase 2+) | TBD |

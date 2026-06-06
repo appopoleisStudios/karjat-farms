@@ -62,6 +62,12 @@ Three sentences per session. Feeds GTM authenticity story.
 - PM fixed blockers: time-system §8 decisions table, repo-structure merge + machine roles, season calendar rebalanced.
 - Adopted SA guidance: offline catch-up cap, 4+2 crop teaser, ban yolo Hermes goals in model-routing §6b.
 
+## 2026-06-06 — PM crop research + naming policy
+
+- Researched all 6 MVP crops: mandi refs from Karjat(Raigad) APMC + Maharashtra hub data; filled paddy/nachni estimated game params in crops.json.
+- Locked UI naming: **English primary**, Hindi names as Latin transliteration only (`palak`, `mooli`, `dhan`) — no Devanagari in default UI.
+- Corrected paddy variety to Trombay Karjat Kolam (RARS Karjat Raigad trials); removed wrong “Karadai” label.
+
 ## 2026-06-05 — GroundWork night 2: farming-engine-audit + karjat-region-bible docs
 
 - Completed docs/tech/farming-engine-audit.md: 16-system Keep/Strip/Replace table with TBD markers, Karjat crop injection via Resources/KarjatData/, Phase 1 import checklist, 5 open engineering questions.
