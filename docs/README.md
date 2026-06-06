@@ -17,9 +17,9 @@
 | [ ] pending | Game Design Document | [docs/gdd/GDD.md](gdd/GDD.md) | Moraen |
 | [ ] pending | Architecture overview | [docs/tech/architecture.md](tech/architecture.md) | Moraen |
 | [x] done | Repository structure | [docs/tech/repo-structure.md](tech/repo-structure.md) | Moraen · PM reviewed |
-| [ ] pending | Farming Engine audit | [docs/tech/farming-engine-audit.md](tech/farming-engine-audit.md) | Moraen |
+| [x] done | Farming Engine audit | [docs/tech/farming-engine-audit.md](tech/farming-engine-audit.md) | Moraen · PM pending review |
 | [x] done | Time system spec | [docs/gdd/time-system.md](gdd/time-system.md) | Moraen · PM reviewed (math + growTime fixes) |
-| [ ] pending | Karjat region bible | [docs/geo/karjat-region-bible.md](geo/karjat-region-bible.md) | Moraen |
+| [x] done | Karjat region bible | [docs/geo/karjat-region-bible.md](geo/karjat-region-bible.md) | Moraen · PM pending review |
 | [ ] pending | Crop data (JSON + MD) | [docs/karjat-economy/crops.json](karjat-economy/crops.json) · [crops.md](karjat-economy/crops.md) | Moraen |
 
 Update checkboxes to `[x] done` as each doc is completed.
