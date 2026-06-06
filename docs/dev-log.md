@@ -62,6 +62,18 @@ Three sentences per session. Feeds GTM authenticity story.
 - PM fixed blockers: time-system §8 decisions table, repo-structure merge + machine roles, season calendar rebalanced.
 - Adopted SA guidance: offline catch-up cap, 4+2 crop teaser, ban yolo Hermes goals in model-routing §6b.
 
+## 2026-06-05 — GroundWork night 2: farming-engine-audit + karjat-region-bible docs
+
+- Completed docs/tech/farming-engine-audit.md: 16-system Keep/Strip/Replace table with TBD markers, Karjat crop injection via Resources/KarjatData/, Phase 1 import checklist, 5 open engineering questions.
+- Completed docs/geo/karjat-region-bible.md: 6-crop table with Raigad/Karjat geography + monsoon water model, mandi flavor (APMC + AI trader), chicks livestock spec, T0 vs T2 fidelity distinction, 5 TBD items with PM/SA decision labels.
+- Blocked on: FE class names unverified (need Phase 1 import), Agmarknet mandi prices incomplete (paddy ₹2,350–4,700 confirmed; leafy veg + nachni TBD).
+- Next: night 3 — GDD.md (≥800 words) + architecture.md (system diagram + dual-build); night 4 — README checkboxes + crops.json completeness check.
+
+## 2026-06-06 — PM integrated Moraen night 2 (Mac Mini → GitHub)
+
+- Moraen commit `d73c59c` was local-only on Mac Mini (push blocked — no `gh auth`); PM cherry-picked content to moraen-Home.
+- Night 2 docs land on PR #1 pending PM review pass + README checkbox update.
+
 ---
 
 <!-- Template for future sessions:
